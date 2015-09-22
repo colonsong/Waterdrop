@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
@@ -28,14 +29,15 @@ import java.util.Map;
 
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.adapter.UploadBaseAdapter;
+import tw.waterdrop.waterdrop.task.LoadPicTask;
 import tw.waterdrop.waterdrop.util.ImageCache;
 import tw.waterdrop.waterdrop.util.ImageCache.ImageCacheParams;
 import tw.waterdrop.waterdrop.util.Utils;
 
 public class UploadPicFragment extends Fragment {
-    public static final int INDEX =3;
+    public static final int INDEX = 3;
     private List pictureList = new ArrayList();
-    private static final  String TAG = "UploadPIC";
+    private static final String TAG = "UploadPIC";
     private static final String picture_path = "storage/ext_sd/DCIM/100MEDIA/";
     private static final String IMAGE_CACHE_DIR = "thumbs";
     private BaseAdapter baseAdapter;
@@ -43,7 +45,7 @@ public class UploadPicFragment extends Fragment {
     private static ImageCache mImageCache;
     private static Context mContext;
 
-    private Map<Integer,Boolean> selectedPicMap = new HashMap<Integer, Boolean>();
+    private Map<Integer, Boolean> selectedPicMap = new HashMap<Integer, Boolean>();
     private SharedPreferences settings;
     // 選單項目物件
     private MenuItem add_item, search_item, revert_item, share_item, delete_item;
@@ -51,7 +53,8 @@ public class UploadPicFragment extends Fragment {
     // 已選擇項目數量
     private int selectedCount = 0;
 
-    public UploadPicFragment(){}
+    public UploadPicFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,24 +75,24 @@ public class UploadPicFragment extends Fragment {
         doController();
 
     }
+
     private void doController() {
 
     }
 
-    private void doView()
-    {
-        baseAdapter = new UploadBaseAdapter(mContext, pictureList ,mImageCache ,selectedPicMap);
+    private void doView() {
+        baseAdapter = new UploadBaseAdapter(mContext, pictureList, mImageCache, selectedPicMap);
 
     }
 
-    private void initData()
-    {
+    private void initData() {
         ImageCacheParams cacheParams = new ImageCacheParams(IMAGE_CACHE_DIR);
         cacheParams.memCacheSize = 1024 * 1024 * Utils.getMemoryClass(getActivity()) / 3;
-        mImageCache = ImageCache.findOrCreateCache(getActivity(),cacheParams);
+        mImageCache = ImageCache.findOrCreateCache(getActivity(), cacheParams);
         getFiles(picture_path);
 
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
@@ -100,13 +103,33 @@ public class UploadPicFragment extends Fragment {
  */
         //mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
         //mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
-        final View v  = inflater.inflate(R.layout.upload, container, false);
+        final View v = inflater.inflate(R.layout.upload, container, false);
         final GridView grid_view = (GridView) v.findViewById(R.id.upload_grid);
         grid_view.setAdapter(baseAdapter);
 
 
-        grid_view.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
+        grid_view.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int scrollState) {
+                // Pause fetcher to ensure smoother scrolling when flinging
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                    // Before Honeycomb pause image loading on scroll to help with performance
+
+                    LoadPicTask.setPauseWork(true);
+
+                } else {
+                    LoadPicTask.setPauseWork(false);
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+            }
+        });
+
+
+        grid_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -122,11 +145,10 @@ public class UploadPicFragment extends Fragment {
                 //int padding_num = (int)Pixel_dp.convertPixelToDp(50,mcontext);
 
 
-                if(selectedPicMap.get(position) == null)
-                {
+                if (selectedPicMap.get(position) == null) {
 
-                    imageToAlpha(mContext,view,80);
-                    selectedPicMap.put((int)id,true);
+                    imageToAlpha(mContext, view, 80);
+                    selectedPicMap.put((int) id, true);
                 }
             }
         });
@@ -138,11 +160,12 @@ public class UploadPicFragment extends Fragment {
         //       grid_view.getVisiblePositioLastn());
 
 
-
         return v;
 
 
     }
+
+
 
     /*
     public Bitmap getMagicDrawingCache(View view) {
@@ -178,53 +201,52 @@ public class UploadPicFragment extends Fragment {
         view.draw(canvas);
         return bitmap;
     }
-    public static void imageToAlpha(Context mcontext,View v,int alpha_num)
-   {
-       // view.setPadding(padding_num,padding_num,padding_num,padding_num);
 
-       // Drawable imgDrawable = viewImg.getDrawable();
-       // 防止出现Immutable bitmap passed to Canvas constructor错误
-       Bitmap upload_bitmap = BitmapFactory.decodeResource(mcontext.getResources(),
-               R.drawable.upload).copy(Bitmap.Config.ARGB_8888, true);
+    public static void imageToAlpha(Context mcontext, View v, int alpha_num) {
+        // view.setPadding(padding_num,padding_num,padding_num,padding_num);
+
+        // Drawable imgDrawable = viewImg.getDrawable();
+        // 防止出现Immutable bitmap passed to Canvas constructor错误
+        Bitmap upload_bitmap = BitmapFactory.decodeResource(mcontext.getResources(),
+                R.drawable.upload).copy(Bitmap.Config.ARGB_8888, true);
 // 新的图片
-    //look for draw cache size
-      // ViewConfiguration.get(mcontext).getScaledMaximumDrawingCacheSize();
-      // imageview.buildDrawingCache();
-      // Bitmap newBitmap = imageview.getDrawingCache();
-       //Bitmap newBitmap = ((BitmapDrawable)imageview.getDrawable()).getBitmap();
-     // imageview.destroyDrawingCache();
+        //look for draw cache size
+        // ViewConfiguration.get(mcontext).getScaledMaximumDrawingCacheSize();
+        // imageview.buildDrawingCache();
+        // Bitmap newBitmap = imageview.getDrawingCache();
+        //Bitmap newBitmap = ((BitmapDrawable)imageview.getDrawable()).getBitmap();
+        // imageview.destroyDrawingCache();
 
-       Bitmap newBitmap = getViewBitmap(v);
-       if(newBitmap == null)
-       {
-           return;
-       }
+        Bitmap newBitmap = getViewBitmap(v);
+        if (newBitmap == null) {
+            return;
+        }
 
-       // Bitmap newBitmap = Bitmap.createBitmap(imgDrawable);
-       //newBitmap.eraseColor(Color.TRANSPARENT);
+        // Bitmap newBitmap = Bitmap.createBitmap(imgDrawable);
+        //newBitmap.eraseColor(Color.TRANSPARENT);
 
-       Canvas canvas = new Canvas(newBitmap);
+        Canvas canvas = new Canvas(newBitmap);
 
-       Paint paint = new Paint();
+        Paint paint = new Paint();
 
 
-       paint.setColor(Color.BLACK);
-       paint.setAlpha(alpha_num);
-       // Paint transparentPaint = new Paint();
-       //transparentPaint.setColor(getResources().getColor(android.R.color.transparent));
-       //transparentPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-       canvas.drawRect(0, 0, newBitmap.getWidth(), newBitmap.getHeight(), paint);
-       //canvas.drawRect(0, 0, bitmap.getWidth(), bitmap.getHeight(), paint);
-      // int cx = (360 - newBitmap.getWidth()) >> 1; // same as (...) / 2
-       //int cy = (360 - newBitmap.getHeight()) >> 1;
-       canvas.drawBitmap(upload_bitmap,100,100,null);
-       //drawBitmap
-       //canvas.save(Canvas.ALL_SAVE_FLAG);
+        paint.setColor(Color.BLACK);
+        paint.setAlpha(alpha_num);
+        // Paint transparentPaint = new Paint();
+        //transparentPaint.setColor(getResources().getColor(android.R.color.transparent));
+        //transparentPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        canvas.drawRect(0, 0, newBitmap.getWidth(), newBitmap.getHeight(), paint);
+        //canvas.drawRect(0, 0, bitmap.getWidth(), bitmap.getHeight(), paint);
+        // int cx = (360 - newBitmap.getWidth()) >> 1; // same as (...) / 2
+        //int cy = (360 - newBitmap.getHeight()) >> 1;
+        canvas.drawBitmap(upload_bitmap, 100, 100, null);
+        //drawBitmap
+        //canvas.save(Canvas.ALL_SAVE_FLAG);
 
-       // 存储新合成的图片
-       //canvas.restore();
-       ImageView viewImg =(ImageView) v;
-       viewImg.setImageBitmap(newBitmap);
+        // 存储新合成的图片
+        //canvas.restore();
+        ImageView viewImg = (ImageView) v;
+        viewImg.setImageBitmap(newBitmap);
 
 /*
                 ViewGroup.LayoutParams para;
@@ -238,14 +260,14 @@ public class UploadPicFragment extends Fragment {
 
                 view.setLayoutParams(para);
                 */
-   }
+    }
 
-    private static String[] imageFormatSet = new String[]{"jpg","png","jpeg"};
+    private static String[] imageFormatSet = new String[]{"jpg", "png", "jpeg"};
+
     //判断是否为图片文件
-    private static boolean isPictureFile(String path)
-    {
-        for(String format : imageFormatSet){
-            if(path.contains(format)){
+    private static boolean isPictureFile(String path) {
+        for (String format : imageFormatSet) {
+            if (path.contains(format)) {
                 return true;
             }
         }
@@ -257,23 +279,23 @@ public class UploadPicFragment extends Fragment {
         File files = new File(url);
         File[] file = files.listFiles();
 
-        try{
-            for(File f : file){
-                if(f.isDirectory()){
-                   // Log.v(TAG,f.getAbsolutePath());
+        try {
+            for (File f : file) {
+                if (f.isDirectory()) {
+                    // Log.v(TAG,f.getAbsolutePath());
                     getFiles(f.getAbsolutePath());
-                }else{
-                    if(isPictureFile(f.getAbsolutePath())){
+                } else {
+                    if (isPictureFile(f.getAbsolutePath())) {
                         pictureList.add(f.getAbsolutePath());
                         titleList.add(f.getAbsolutePath().substring(0, f.getAbsolutePath().lastIndexOf(".")));
                     }
                 }
-               // Log.v(TAG,file.length + "");
-               // if(pictureList.size() > 30) {
-                 //   break;
+                // Log.v(TAG,file.length + "");
+                // if(pictureList.size() > 30) {
+                //   break;
                 //}
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -320,7 +342,7 @@ public class UploadPicFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_upload, menu);
-        super.onCreateOptionsMenu(menu,inflater);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
 

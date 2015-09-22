@@ -48,33 +48,32 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onPause() {
         super.onPause();
-        Log.v(TAG,"onPause");
+        Log.v(TAG, "onPause");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.v(TAG,"onResume");
+        Log.v(TAG, "onResume");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.v(TAG,"onStart");
+        Log.v(TAG, "onStart");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.v(TAG,"onDestroy");
+        Log.v(TAG, "onDestroy");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.v(TAG,"onStop");
+        Log.v(TAG, "onStop");
     }
-
 
 
     /**
@@ -84,7 +83,7 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG,"onCreate");
+        Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -93,8 +92,7 @@ public class MainActivity extends ActionBarActivity
 
     }
 
-    private void doViews()
-    {
+    private void doViews() {
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -105,11 +103,9 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
-    private void doControllers()
-    {
-        if(Service.isServiceRunning(getBaseContext(), ARTICLE_SERVICE_NAME) == false)
-        {
-            Log.d(TAG,"ARTICLE_SERVICE START" );
+    private void doControllers() {
+        if (Service.isServiceRunning(getBaseContext(), ARTICLE_SERVICE_NAME) == false) {
+            Log.d(TAG, "ARTICLE_SERVICE START");
             startService(new Intent(this, CheckArticleService.class));
         }
     }
@@ -118,59 +114,56 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-       // Intent intent = new Intent(this,MenuActivity.class);
-       // intent.putExtra(Constants.Extra.FRAGMENT_INDEX,position);
+        // Intent intent = new Intent(this,MenuActivity.class);
+        // intent.putExtra(Constants.Extra.FRAGMENT_INDEX,position);
         //startActivity(intent);
 
 
         String tag = "";
-            switch (position) {
-                case 0:
-                    tag = BasicTestFragment.class.getSimpleName();
-                    fragment = getSupportFragmentManager().findFragmentByTag(tag);
-                    if(fragment == null) {
-                        fragment = new BasicTestFragment();
-                    }
+        switch (position) {
+            case 0:
+                tag = BasicTestFragment.class.getSimpleName();
+                fragment = getSupportFragmentManager().findFragmentByTag(tag);
+                if (fragment == null) {
+                    fragment = new BasicTestFragment();
+                }
 
-                    break;
+                break;
 
-                case 1:
-                     tag = BlogFragment.class.getSimpleName();
-                    fragment = getSupportFragmentManager().findFragmentByTag(tag);
-                    if(fragment == null) {
-                        fragment = new BlogFragment();
-                    }
-                    break;
-                case 2:
-                     tag = AlbumFragment.class.getSimpleName();
-                    fragment = getSupportFragmentManager().findFragmentByTag(tag);
-                    if(fragment == null) {
-                        fragment = new AlbumFragment();
-                    }
-                    break;
-                case 3:
-                     tag = UploadPicFragment.class.getSimpleName();
-                    fragment = getSupportFragmentManager().findFragmentByTag(tag);
-                    if(fragment == null) {
-                        fragment = new UploadPicFragment();
-                    }
-                    break;
-                case 4:
-                    tag = MapFragment.class.getSimpleName();
-                    fragment = getSupportFragmentManager().findFragmentByTag(tag);
-                    if(fragment == null) {
-                        fragment = new MapFragment();
-                    }
-                    break;
+            case 1:
+                tag = BlogFragment.class.getSimpleName();
+                fragment = getSupportFragmentManager().findFragmentByTag(tag);
+                if (fragment == null) {
+                    fragment = new BlogFragment();
+                }
+                break;
+            case 2:
+                tag = AlbumFragment.class.getSimpleName();
+                fragment = getSupportFragmentManager().findFragmentByTag(tag);
+                if (fragment == null) {
+                    fragment = new AlbumFragment();
+                }
+                break;
+            case 3:
+                tag = UploadPicFragment.class.getSimpleName();
+                fragment = getSupportFragmentManager().findFragmentByTag(tag);
+                if (fragment == null) {
+                    fragment = new UploadPicFragment();
+                }
+                break;
+            case 4:
+                tag = MapFragment.class.getSimpleName();
+                fragment = getSupportFragmentManager().findFragmentByTag(tag);
+                if (fragment == null) {
+                    fragment = new MapFragment();
+                }
+                break;
 
-            }
-
-
-
+        }
 
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.container, fragment,tag).commit();
+        fragmentManager.beginTransaction().replace(R.id.container, fragment, tag).commit();
 
         onSectionAttached(position);
 

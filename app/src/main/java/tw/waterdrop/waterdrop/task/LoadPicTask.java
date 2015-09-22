@@ -1,4 +1,5 @@
 package tw.waterdrop.waterdrop.task;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,7 +29,10 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
     private Context mContext;
     private Bitmap mLoadingBitmap;
     private ImageCache imageCache;
-    public LoadPicTask(Context context,ImageView imageView,ImageCache imageCache) {
+    protected static boolean mPauseWork = false;
+    private static final Object mPauseWorkLock = new Object();
+
+    public LoadPicTask(Context context, ImageView imageView, ImageCache imageCache) {
         this.mContext = context;
         this.imageCache = imageCache;
         // Use a WeakReference to ensure the ImageView can be garbage collected
@@ -48,15 +52,25 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
         // thread and the ImageView that was originally bound to this task is still bound back
         // to this task and our "exit early" flag is not set then try and fetch the bitmap from
         // the cache
+        // Wait here if work is paused and the task is not cancelled
+        synchronized (mPauseWorkLock) {
+            while (mPauseWork && !isCancelled()) {
+                try {
+                    mPauseWorkLock.wait();
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+
+
         if (imageCache != null && !isCancelled() && getAttachedImageView() != null
                 ) {
             bitmap = imageCache.getBitmapFromDiskCache(position);
         }
 
 
-        if(bitmap == null && !isCancelled() && getAttachedImageView() != null)
-        {
-           // bitmap = decodeSampledBitmapFromFile(path,360,360);
+        if (bitmap == null && !isCancelled() && getAttachedImageView() != null) {
+            // bitmap = decodeSampledBitmapFromFile(path,360,360);
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             //先取寬高
@@ -64,22 +78,21 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
 
             BitmapFactory.decodeFile(path, options);
 
-            options.inScaled =true;
+            options.inScaled = true;
             // Calculate inSampleSize
             options.inSampleSize = calculateInSampleSize(options, 360, 360);
-
+//options.inDither = true;
             //density size
             options.inDensity = options.outWidth;
             options.inTargetDensity = 360 * options.inSampleSize;
             // Decode bitmap with inSampleSize set
             options.inJustDecodeBounds = false;
 
-            bitmap =  BitmapFactory.decodeFile(path, options);
+            bitmap = BitmapFactory.decodeFile(path, options);
         }
         //儲存CACHE
-        if(bitmap !=null && imageCache != null)
-        {
-            imageCache.addBitmapToCache(position,bitmap);
+        if (bitmap != null && imageCache != null) {
+            imageCache.addBitmapToCache(position, bitmap);
 
 
         }
@@ -96,21 +109,15 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
 
         }
 
-        if(imageViewReference != null && bitmap != null)
-        {
-            final ImageView imageView = imageViewReference.get();
-            final LoadPicTask bitmapWorkerTask =   UploadBaseAdapter.getBitmapWorkerTask(imageView);
 
-            if (this == bitmapWorkerTask && imageView != null) {
-                Log.v(TAG,this.toString());
-                imageView.setImageBitmap(bitmap);
-            }
+        final ImageView imageView = getAttachedImageView();
+
+        if (imageView != null && bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+
         }
-        final ImageView imageView =getAttachedImageView();
-        if(bitmap != null && imageView != null)
-        {
-            setImageBitmap(imageView, bitmap);
-        }
+
+
         /*
         final ImageView imageView = getAttachedImageView();
 
@@ -131,7 +138,17 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
             }
         }
         */
+
     }
+
+    @Override
+    protected void onCancelled(Bitmap value) {
+        super.onCancelled(value);
+        synchronized (mPauseWorkLock) {
+            mPauseWorkLock.notifyAll();
+        }
+    }
+
     /**
      * Called when the processing is complete and the final bitmap should be set on the ImageView.
      *
@@ -142,7 +159,7 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
         if (mFadeInBitmap) {
             // Transition drawable with a transparent drwabale and the final bitmap
             final TransitionDrawable td =
-                    new TransitionDrawable(new Drawable[] {
+                    new TransitionDrawable(new Drawable[]{
                             new ColorDrawable(android.R.color.transparent),
                             new BitmapDrawable(mContext.getResources(), bitmap)
                     });
@@ -170,7 +187,7 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
      */
     private ImageView getAttachedImageView() {
         final ImageView imageView = imageViewReference.get();
-        final LoadPicTask bitmapWorkerTask =   UploadBaseAdapter.getBitmapWorkerTask(imageView);
+        final LoadPicTask bitmapWorkerTask = UploadBaseAdapter.getBitmapWorkerTask(imageView);
 
         if (this == bitmapWorkerTask) {
             return imageView;
@@ -178,7 +195,6 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
 
         return null;
     }
-
 
 
     public static int calculateInSampleSize(
@@ -190,20 +206,40 @@ public class LoadPicTask extends AsyncTask<Object, Void, Bitmap> {
 
         if (height > reqHeight || width > reqWidth) {
 
-            // Calculate ratios of height and width to requested height and width
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
 
-            // Choose the smallest ratio as inSampleSize value, this will guarantee
-            // a final image with both dimensions larger than or equal to the
-            // requested height and width.
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
         }
 
         return inSampleSize;
     }
 
-
+    /**
+     * Pause any ongoing background work. This can be used as a temporary
+     * measure to improve performance. For example background work could
+     * be paused when a ListView or GridView is being scrolled using a
+     * {@link android.widget.AbsListView.OnScrollListener} to keep
+     * scrolling smooth.
+     * <p/>
+     * If work is paused, be sure setPauseWork(false) is called again
+     * before your fragment or activity is destroyed (for example during
+     * {@link android.app.Activity#onPause()}), or there is a risk the
+     * background thread will never finish.
+     */
+    public static void setPauseWork(boolean pauseWork) {
+        synchronized (mPauseWorkLock) {
+            mPauseWork = pauseWork;
+            if (!mPauseWork) {
+                mPauseWorkLock.notifyAll();
+            }
+        }
+    }
 
 
 }
