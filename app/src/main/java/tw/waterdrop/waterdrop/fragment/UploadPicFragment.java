@@ -29,9 +29,9 @@ import java.util.Map;
 
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.adapter.UploadBaseAdapter;
-import tw.waterdrop.waterdrop.task.LoadPicTask;
 import tw.waterdrop.waterdrop.util.ImageCache;
 import tw.waterdrop.waterdrop.util.ImageCache.ImageCacheParams;
+import tw.waterdrop.waterdrop.util.ImageWorker;
 import tw.waterdrop.waterdrop.util.Utils;
 
 public class UploadPicFragment extends Fragment {
@@ -41,11 +41,13 @@ public class UploadPicFragment extends Fragment {
     private static final String picture_path = "storage/ext_sd/DCIM/100MEDIA/";
     private static final String IMAGE_CACHE_DIR = "thumbs";
     private BaseAdapter baseAdapter;
-    private List titleList = new ArrayList();
+    private static List titleList = new ArrayList();
     private static ImageCache mImageCache;
     private static Context mContext;
+    private ImageWorker imageWorker;
 
-    private Map<Integer, Boolean> selectedPicMap = new HashMap<Integer, Boolean>();
+
+    private static Map<Integer, Boolean> selectedPicMap = new HashMap<Integer, Boolean>();
     private SharedPreferences settings;
     // 選單項目物件
     private MenuItem add_item, search_item, revert_item, share_item, delete_item;
@@ -81,7 +83,9 @@ public class UploadPicFragment extends Fragment {
     }
 
     private void doView() {
-        baseAdapter = new UploadBaseAdapter(mContext, pictureList, mImageCache, selectedPicMap);
+
+        imageWorker = new ImageWorker(getActivity(),pictureList,mImageCache);
+        baseAdapter = new UploadBaseAdapter(mContext, pictureList, selectedPicMap,imageWorker);
 
     }
 
@@ -90,6 +94,10 @@ public class UploadPicFragment extends Fragment {
         cacheParams.memCacheSize = 1024 * 1024 * Utils.getMemoryClass(getActivity()) / 3;
         mImageCache = ImageCache.findOrCreateCache(getActivity(), cacheParams);
         getFiles(picture_path);
+
+
+
+
 
     }
 
@@ -115,10 +123,10 @@ public class UploadPicFragment extends Fragment {
                 if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
                     // Before Honeycomb pause image loading on scroll to help with performance
 
-                    LoadPicTask.setPauseWork(true);
+                    imageWorker.setPauseWork(true);
 
                 } else {
-                    LoadPicTask.setPauseWork(false);
+                    imageWorker.setPauseWork(false);
                 }
             }
 

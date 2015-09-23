@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 
 import java.io.File;
 
@@ -141,20 +142,18 @@ public class ImageCache {
         }
     }
 
-    public void addBitmapToCache(String data, Bitmap bitmap) {
-        if (data == null || bitmap == null) {
+    public void addBitmapToCache(String position, Bitmap bitmap) {
+        if (position == null || bitmap == null) {
             return;
         }
 
         // Add to memory cache
-        if (mMemoryCache != null && mMemoryCache.get(data) == null) {
-            mMemoryCache.put(data, bitmap);
+        if (mMemoryCache != null) {
+            mMemoryCache.put(position, bitmap);
+            mDiskCache.put(position, bitmap);
         }
 
-        // Add to disk cache
-        if (mDiskCache != null && !mDiskCache.containsKey(data)) {
-            mDiskCache.put(data, bitmap);
-        }
+
     }
 
     /**
@@ -182,6 +181,7 @@ public class ImageCache {
      */
     public Bitmap getBitmapFromDiskCache(String data) {
         if (mDiskCache != null) {
+            Log.v("COLON YES!!!",data);
             return mDiskCache.get(data);
         }
         return null;
