@@ -1,6 +1,7 @@
 package tw.waterdrop.waterdrop.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,6 +19,7 @@ public class UploadBaseAdapter extends BaseAdapter {
 
     private Context mContext;
     private GridView.LayoutParams mImageViewLayoutParams;
+    private int pictureListSize;
 
     public static Map<Integer, Boolean> selectedPicMap;
     private ImageWorker imageWorker;
@@ -25,32 +27,41 @@ public class UploadBaseAdapter extends BaseAdapter {
 
     public UploadBaseAdapter(Context context, List pictureList, Map<Integer, Boolean> selectedPicMap, ImageWorker imageWorker) {
         super();
+        Log.v(TAG, "gridview constructor");
         this.mContext = context;
         this.pictureList = pictureList;
+        this.pictureListSize = pictureList.size();
         this.selectedPicMap = selectedPicMap;
         this.imageWorker = imageWorker;
-        this.mImageViewLayoutParams = new GridView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        this.mImageViewLayoutParams = new GridView.
+                LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 360);
 
     }
 
     @Override
     public int getCount() {
-        return pictureList.size();
+        Log.v(TAG,"gridview getCount" );
+        return pictureListSize;
     }
 
     @Override
     public String getItem(int position) {
+
+        Log.v(TAG,"gridview getItem" + position);
         return pictureList.get(position).toString();
     }
 
     @Override
     public long getItemId(int position) {
+
+        Log.v(TAG,"gridview getItemId" + position);
         return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        Log.v(TAG,"gridview getView" + position);
         // 自訂類別，表達個別listItem中的view物件集合。
         ImageView imageView;
         if (convertView == null) {
@@ -77,12 +88,12 @@ public class UploadBaseAdapter extends BaseAdapter {
             //int type = getItemViewType(position);
             //viewTag.icon.setImageResource(R.drawable.blank);
             imageView = (ImageView) convertView;
-            imageView.setPadding(0, 0, 0, 0);
+
         }
         //imageView.setLayoutParams(mImageViewLayoutParams);
 
-        ViewGroup.LayoutParams para;
-        para = imageView.getLayoutParams();
+       // ViewGroup.LayoutParams para;
+      //  para = imageView.getLayoutParams();
 
         //获取
         //Log.d(TAG, "layout height0: " + para.height);
@@ -92,13 +103,17 @@ public class UploadBaseAdapter extends BaseAdapter {
         //int width_height = (int) Pixel_dp.convertDpToPixel(120f,context);
         //Log.d(TAG, "width_height: " + width_height);
 
-        para.height = 360;
-        para.width = 360;
-        imageView.setLayoutParams(para);
+        //para.height = 360;
+        //para.width = 360;
+       // imageView.setLayoutParams(para);
 
 
         // imageView.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        imageWorker.drawImage(position, imageView);
+        if(position != 0)
+        {
+            imageWorker.drawImage(position, imageView);
+        }
+
         // viewTag.icon.setImageBitmap(
         //      decodeSampledBitmapFromResource(list.get(position).toString(), 120, 120));
 

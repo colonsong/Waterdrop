@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,21 +32,23 @@ import java.util.Map;
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.adapter.UploadBaseAdapter;
 import tw.waterdrop.waterdrop.util.ImageCache;
-import tw.waterdrop.waterdrop.util.ImageCache.ImageCacheParams;
 import tw.waterdrop.waterdrop.util.ImageWorker;
-import tw.waterdrop.waterdrop.util.Utils;
 
 public class UploadPicFragment extends Fragment {
     public static final int INDEX = 3;
     private List pictureList = new ArrayList();
     private static final String TAG = "UploadPIC";
     private static final String picture_path = "storage/ext_sd/DCIM/100MEDIA/";
+
     private static final String IMAGE_CACHE_DIR = "thumbs";
-    private BaseAdapter baseAdapter;
+    private BaseAdapter uploadBaseAdapter;
     private static List titleList = new ArrayList();
     private static ImageCache mImageCache;
-    private static Context mContext;
+    private Context mContext;
     private ImageWorker imageWorker;
+
+    private int mImageThumbSize;
+    private int mImageThumbSpacing;
 
 
     private static Map<Integer, Boolean> selectedPicMap = new HashMap<Integer, Boolean>();
@@ -84,26 +88,41 @@ public class UploadPicFragment extends Fragment {
 
     private void doView() {
 
-        imageWorker = new ImageWorker(getActivity(),pictureList,mImageCache);
-        baseAdapter = new UploadBaseAdapter(mContext, pictureList, selectedPicMap,imageWorker);
+        this.imageWorker = new ImageWorker(getActivity(),pictureList,mImageCache);
+        this.uploadBaseAdapter = new UploadBaseAdapter(mContext, pictureList, selectedPicMap,imageWorker);
 
     }
 
     private void initData() {
-        ImageCacheParams cacheParams = new ImageCacheParams(IMAGE_CACHE_DIR);
-        cacheParams.memCacheSize = 1024 * 1024 * Utils.getMemoryClass(getActivity()) / 3;
-        mImageCache = ImageCache.findOrCreateCache(getActivity(), cacheParams);
+
+        mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
+        mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
+
+
+
+        ImageCache.ImageCacheParams cacheParams =
+                new ImageCache.ImageCacheParams(getActivity(), IMAGE_CACHE_DIR);
+        cacheParams.setMemCacheSizePercent(0.75f); // Set memory cache to 25% of app memory
+        mImageCache = ImageCache.getInstance(getActivity().getSupportFragmentManager(),cacheParams);
+        new Thread(){
+            public void run()
+            {
+                mImageCache.initDiskCache();
+
+            }}.start();
+
         getFiles(picture_path);
-
-
 
 
 
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
+
 /**
  * onCreateView是创建该fragment对应的视图，你必须在这里创建自己的视图并返回给调用者，例如
  return inflater.inflate(R.layout.fragment_settings, container, false);。
@@ -113,7 +132,8 @@ public class UploadPicFragment extends Fragment {
         //mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
         final View v = inflater.inflate(R.layout.upload, container, false);
         final GridView grid_view = (GridView) v.findViewById(R.id.upload_grid);
-        grid_view.setAdapter(baseAdapter);
+        Log.v(TAG, "TestGridview @@@load baseAdapter");
+        grid_view.setAdapter(uploadBaseAdapter);
 
 
         grid_view.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -162,6 +182,8 @@ public class UploadPicFragment extends Fragment {
         });
 
 
+
+
         //setScrollListener();
 
         //drawImage(grid_view.getFirstVisiblePosition(),
@@ -204,7 +226,7 @@ public class UploadPicFragment extends Fragment {
     */
 
     public static Bitmap getViewBitmap(View view) {
-        Bitmap bitmap = Bitmap.createBitmap(360, 360, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         view.draw(canvas);
         return bitmap;
@@ -366,9 +388,18 @@ public class UploadPicFragment extends Fragment {
                 break;
             // 使用者選擇新增選單項目
             case R.id.add_item:
+                mImageCache.mMemoryCache.evictAll();
+                Toast.makeText(getActivity(), "clear Memory cache", Toast.LENGTH_SHORT).show();
                 break;
             // 取消所有已勾選的項目
             case R.id.revert_item:
+               new Thread(){
+                public void run()
+                {
+                    mImageCache.initDiskCache();
+                }}.start();
+                Toast.makeText(getActivity(), "clear Disk cache", Toast.LENGTH_SHORT).show();
+
                 break;
             // 刪除
             case R.id.delete_item:
