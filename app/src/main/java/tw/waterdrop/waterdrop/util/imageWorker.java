@@ -1,5 +1,6 @@
 package tw.waterdrop.waterdrop.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -16,9 +17,12 @@ import android.widget.ImageView;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.adapter.UploadBaseAdapter;
@@ -45,7 +49,7 @@ public class ImageWorker {
     private static final float columnWidthDp = 100f;
     private static int columnWidthPixel;
     //fade image
-    private static final int FADE_IN_TIME = 200;
+    private static final int FADE_IN_TIME = 400;
     private boolean mFadeInBitmap = true;
 
     public static void setColumnWidthPixel(int size)
@@ -86,20 +90,23 @@ public class ImageWorker {
             {
                 return null;
             }
+
+            Log.v(TAG,"takstest task do background " + params.toString());
             synchronized (mPauseWorkLock) {
                 while (mPauseWork && !isCancelled()) {
                     try {
+
                         mPauseWorkLock.wait();
                     } catch (InterruptedException e) {
                     }
                 }
             }
 
-            path = params[0].toString();
-            String position = String.valueOf(params[1]);
-            Bitmap bitmap = null;
-            BitmapDrawable drawable = null;
 
+            final String position = String.valueOf(params[1]);
+
+            BitmapDrawable drawable = null;
+            Bitmap bitmap = null;
 
             // If the image cache is available and this task has not been cancelled by another
             // thread and the ImageView that was originally bound to this task is still bound back
@@ -109,12 +116,56 @@ public class ImageWorker {
 
 
 
-            if (imageCache != null && !isCancelled() && getAttachedImageView() != null
+            if (getAttachedImageView() != null && imageCache != null && !isCancelled()
                     ) {
+
                 bitmap = imageCache.getBitmapFromDiskCache(position);
                 if(bitmap == null)
                 {
+                    path = params[0].toString();
+                    options = new BitmapFactory.Options();
+                    //先取寬高
+                    options.inJustDecodeBounds = true;
 
+                    BitmapFactory.decodeFile(path, options);
+
+                    options.inScaled = true;
+                    // Calculate inSampleSize
+                    options.inSampleSize = calculateInSampleSize(options, columnWidthPixel, columnWidthPixel);
+//options.inDither = true;
+                    //density size
+                    options.inDensity = options.outWidth;
+                    options.inTargetDensity = columnWidthPixel * options.inSampleSize;
+                    // Decode bitmap with inSampleSize set
+                    options.inJustDecodeBounds = false;
+                    // If we're running on Honeycomb or newer, try to use inBitmap
+                    if (Utils.hasHoneycomb()) {
+                        addInBitmapOptions(options, imageCache);
+                    }
+
+
+
+                    bitmap = BitmapFactory.decodeFile(path, options);
+                    //options.inBitmap = bitmap;
+
+                    if(bitmap != null)
+                    {
+
+                        if (Utils.hasHoneycomb()) {
+                            // Running on Honeycomb or newer, so wrap in a standard BitmapDrawable
+                            drawable = new BitmapDrawable(mResources, bitmap);
+                        } else {
+
+                            // Running on Gingerbread or older, so wrap in a RecyclingBitmapDrawable
+                            // which will recycle automagically
+                            // drawable = new RecyclingBitmapDrawable(mResources, bitmap);
+                        }
+
+
+                            imageCache.addBitmapToCache(position, drawable);
+
+
+                    }
                 }
                 else
                 {
@@ -126,55 +177,7 @@ public class ImageWorker {
                 }
             }
 
-
-
-            if (bitmap == null && !isCancelled() && getAttachedImageView() != null) {
-                // bitmap = decodeSampledBitmapFromFile(path,360,360);
-
-                options = new BitmapFactory.Options();
-                //先取寬高
-                options.inJustDecodeBounds = true;
-
-                BitmapFactory.decodeFile(path, options);
-
-                options.inScaled = true;
-                // Calculate inSampleSize
-                options.inSampleSize = calculateInSampleSize(options, columnWidthPixel, columnWidthPixel);
-//options.inDither = true;
-                //density size
-                options.inDensity = options.outWidth;
-                options.inTargetDensity = columnWidthPixel * options.inSampleSize;
-                // Decode bitmap with inSampleSize set
-                options.inJustDecodeBounds = false;
-
-
-                bitmap = BitmapFactory.decodeFile(path, options);
-                options.inBitmap = bitmap;
-
-                if(bitmap != null)
-                {
-
-                    if (Utils.hasHoneycomb()) {
-                        // Running on Honeycomb or newer, so wrap in a standard BitmapDrawable
-                        drawable = new BitmapDrawable( bitmap);
-                    } else {
-
-                        // Running on Gingerbread or older, so wrap in a RecyclingBitmapDrawable
-                        // which will recycle automagically
-                        // drawable = new RecyclingBitmapDrawable(mResources, bitmap);
-                    }
-
-                    if (imageCache != null) {
-                        imageCache.addBitmapToCache(position, drawable);
-                    }
-
-                }
-
-            }
-
-
-
-
+            Log.v(TAG,"takstest task do background down" + position);
             return drawable;
         }
 
@@ -185,18 +188,22 @@ public class ImageWorker {
         @Override
         protected void onPostExecute(BitmapDrawable bitmap) {
 
-            if (isCancelled()) {
+            if (isCancelled() || bitmap == null) {
                 bitmap = null;
 
             }
+            else
+            {
+                final ImageView imageView = getAttachedImageView();
 
+                if (imageView != null && bitmap != null) {
+                    setImageDrawable(imageView, bitmap);
 
-            final ImageView imageView = getAttachedImageView();
-
-            if (imageView != null && bitmap != null) {
-                setImageDrawable(imageView, bitmap);
-
+                }
             }
+
+
+
 
 
         /*
@@ -226,10 +233,12 @@ public class ImageWorker {
         @Override
         protected void onCancelled(BitmapDrawable value) {
             super.onCancelled(value);
+            value = null;
             synchronized (mPauseWorkLock) {
                 mPauseWorkLock.notifyAll();
             }
         }
+
 
 
         /**
@@ -248,8 +257,9 @@ public class ImageWorker {
                                 drawable
                         });
                 // Set background to loading bitmap
-                imageView.setBackgroundDrawable(
-                        new BitmapDrawable(mResources, mLoadingBitmap));
+               // imageView.setBackgroundDrawable(
+                 //       new BitmapDrawable(mResources, mLoadingBitmap));
+              //  imageView.setImageBitmap(mLoadingBitmap);
 
                 imageView.setImageDrawable(td);
                 td.startTransition(FADE_IN_TIME);
@@ -260,11 +270,9 @@ public class ImageWorker {
 
 
 
-
         /**
          * Returns the ImageView associated with this task as long as the ImageView's task still
          * points to this task as well. Returns null otherwise.
-         * 沒用了
          */
         private ImageView getAttachedImageView() {
             final ImageView imageView = imageViewReference.get();
@@ -287,9 +295,9 @@ public class ImageWorker {
 
 
 
-
-
     }
+
+
     public void drawImage(int position, ImageView imageView) {
 
         BitmapDrawable bitmap = null;
@@ -314,16 +322,16 @@ public class ImageWorker {
             }
 
         } else if (cancelPotentialWork(position, imageView)) {
+
             final LoadPicTask task = new LoadPicTask(mContext, imageView);
             final AsyncDrawable asyncDrawable =
-                    new AsyncDrawable(mContext.getResources(), mLoadingBitmap, task);
+                    new AsyncDrawable(mResources, mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
 
             //task.execute(pictureList.get(position).toString(), position);
             // Log.v(TAG,Runtime.getRuntime().availableProcessors() + "");
-          Executor exec = new ThreadPoolExecutor(4, 128, 10,
-                   TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-            task.executeOnExecutor(exec, pictureList.get(position).toString(), position);
+
+            task.executeOnExecutor(Executors.newFixedThreadPool(4, sThreadFactory), pictureList.get(position).toString(), position);
 
             // task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR);
         }
@@ -337,6 +345,21 @@ public class ImageWorker {
         //task.execute(pictureList.get(i).toString());
 
 
+    }
+    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+        private final AtomicInteger mCount = new AtomicInteger(1);
+
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
+        }
+    };
+    /**
+     * Set placeholder bitmap that shows when the the background thread is running.
+     *
+     * @param resId
+     */
+    public void setLoadingImage(int resId) {
+        mLoadingBitmap = BitmapFactory.decodeResource(mResources, resId);
     }
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -399,13 +422,17 @@ public class ImageWorker {
         return null;
     }
 
-    //讀取VIEW時檢查自己有沒有TASK還再執行 如果有 停止 執行新的
-    public class AsyncDrawable extends BitmapDrawable {
+    /**
+     * A custom Drawable that will be attached to the imageView while the work is in progress.
+     * Contains a reference to the actual worker task, so that it can be stopped if a new binding is
+     * required, and makes sure that only the last started worker process can bind its result,
+     * independently of the finish order.
+     */
+    private static class AsyncDrawable extends BitmapDrawable {
         private final WeakReference<LoadPicTask> bitmapWorkerTaskReference;
 
         public AsyncDrawable(Resources res, Bitmap bitmap, LoadPicTask bitmapWorkerTask) {
             super(res, bitmap);
-
             bitmapWorkerTaskReference =
                     new WeakReference<LoadPicTask>(bitmapWorkerTask);
         }
@@ -414,6 +441,7 @@ public class ImageWorker {
             return bitmapWorkerTaskReference.get();
         }
     }
+
 
     /**
      * Returns true if the current work has been canceled or if there was no work in
@@ -436,6 +464,23 @@ public class ImageWorker {
             }
         }
         return true;
+    }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private static void addInBitmapOptions(BitmapFactory.Options options, ImageCache cache) {
+        //BEGIN_INCLUDE(add_bitmap_options)
+        // inBitmap only works with mutable bitmaps so force the decoder to
+        // return mutable bitmaps.
+        options.inMutable = true;
+
+        if (cache != null) {
+            // Try and find a bitmap to use for inBitmap
+            Bitmap inBitmap = cache.getBitmapFromReusableSet(options);
+
+            if (inBitmap != null) {
+                options.inBitmap = inBitmap;
+            }
+        }
+        //END_INCLUDE(add_bitmap_options)
     }
 
 }

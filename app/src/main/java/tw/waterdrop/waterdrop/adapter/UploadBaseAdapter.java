@@ -62,6 +62,7 @@ public class UploadBaseAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Log.v(TAG,"gridview getView" + position);
+        Log.v(TAG,"takstest getView" + position);
         // 自訂類別，表達個別listItem中的view物件集合。
         ImageView imageView;
         if (convertView == null) {

@@ -506,6 +506,7 @@ public class ImageCache {
         int width = targetOptions.outWidth / targetOptions.inSampleSize;
         int height = targetOptions.outHeight / targetOptions.inSampleSize;
         int byteCount = width * height * getBytesPerPixel(candidate.getConfig());
+        Log.v(" inBitmap " , "inBitmap " + byteCount + "@" + candidate.getAllocationByteCount());
         return byteCount <= candidate.getAllocationByteCount();
         //END_INCLUDE(can_use_for_inbitmap)
     }

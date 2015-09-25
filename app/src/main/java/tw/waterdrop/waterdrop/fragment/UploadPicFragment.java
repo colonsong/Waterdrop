@@ -89,6 +89,7 @@ public class UploadPicFragment extends Fragment {
     private void doView() {
 
         this.imageWorker = new ImageWorker(getActivity(),pictureList,mImageCache);
+        this.imageWorker.setLoadingImage(R.drawable.blank);
         this.uploadBaseAdapter = new UploadBaseAdapter(mContext, pictureList, selectedPicMap,imageWorker);
 
     }
@@ -102,7 +103,7 @@ public class UploadPicFragment extends Fragment {
 
         ImageCache.ImageCacheParams cacheParams =
                 new ImageCache.ImageCacheParams(getActivity(), IMAGE_CACHE_DIR);
-        cacheParams.setMemCacheSizePercent(0.75f); // Set memory cache to 25% of app memory
+        cacheParams.setMemCacheSizePercent(0.3f); // Set memory cache to 25% of app memory
         mImageCache = ImageCache.getInstance(getActivity().getSupportFragmentManager(),cacheParams);
         new Thread(){
             public void run()
@@ -144,6 +145,8 @@ public class UploadPicFragment extends Fragment {
                     // Before Honeycomb pause image loading on scroll to help with performance
 
                     imageWorker.setPauseWork(true);
+
+
 
                 } else {
                     imageWorker.setPauseWork(false);
