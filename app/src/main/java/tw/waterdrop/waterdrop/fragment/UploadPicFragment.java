@@ -143,19 +143,31 @@ public class UploadPicFragment extends Fragment {
                 // Pause fetcher to ensure smoother scrolling when flinging
                 if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
                     // Before Honeycomb pause image loading on scroll to help with performance
+                    Log.v(TAG, "Scroll Log : SCROLL_STATE_FLING");
 
                     imageWorker.setPauseWork(true);
 
 
-
-                } else {
+                } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE){
                     imageWorker.setPauseWork(false);
+                    Log.v(TAG, "Scroll Log : UN LOCK");
+                } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
+                {
+                    imageWorker.setPauseWork(false);
+                    Log.v(TAG, "Scroll Log : SCROLL_STATE_TOUCH_SCROLL");
+                }
+                else
+                {
+                    Log.v(TAG, "Scroll Log : SCROLL_STATE ELSE");
                 }
             }
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
+
+                Log.v(TAG, "Scroll Log : onScroll END ");
+
             }
         });
 

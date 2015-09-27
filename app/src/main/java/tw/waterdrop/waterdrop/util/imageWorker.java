@@ -47,15 +47,12 @@ public class ImageWorker {
     protected  boolean mPauseWork = false;
     private  final Object mPauseWorkLock = new Object();
     private static final float columnWidthDp = 100f;
-    private static int columnWidthPixel;
+    private  int columnWidthPixel;
     //fade image
     private static final int FADE_IN_TIME = 400;
-    private boolean mFadeInBitmap = true;
+    private static final boolean mFadeInBitmap = true;
 
-    public static void setColumnWidthPixel(int size)
-    {
-        columnWidthPixel = size;
-    }
+
 
     public ImageWorker(Context mContext , List pictureList, ImageCache imageCache)
     {
@@ -65,6 +62,8 @@ public class ImageWorker {
         this.mResources = mContext.getResources();
 
         this.columnWidthPixel =(int) (columnWidthDp * Pixel_dp.getDensity(mContext));
+
+
     }
 
 
@@ -86,11 +85,6 @@ public class ImageWorker {
         @Override
         protected BitmapDrawable doInBackground(Object... params) {
 
-            if(params == null)
-            {
-                return null;
-            }
-
             Log.v(TAG,"takstest task do background " + params.toString());
             synchronized (mPauseWorkLock) {
                 while (mPauseWork && !isCancelled()) {
@@ -98,10 +92,13 @@ public class ImageWorker {
 
                         mPauseWorkLock.wait();
                     } catch (InterruptedException e) {
+                        Log.v(TAG, "wait exception : " + e.toString());
                     }
                 }
             }
-
+            if(params == null) {
+                return null;
+            }
 
             final String position = String.valueOf(params[1]);
 
@@ -178,6 +175,9 @@ public class ImageWorker {
             }
 
             Log.v(TAG,"takstest task do background down" + position);
+            options = null;
+            mData = null;
+            path = null;
             return drawable;
         }
 
@@ -189,14 +189,13 @@ public class ImageWorker {
         protected void onPostExecute(BitmapDrawable bitmap) {
 
             if (isCancelled() || bitmap == null) {
-                bitmap = null;
 
             }
             else
             {
                 final ImageView imageView = getAttachedImageView();
 
-                if (imageView != null && bitmap != null) {
+                if (imageView != null) {
                     setImageDrawable(imageView, bitmap);
 
                 }
@@ -233,10 +232,11 @@ public class ImageWorker {
         @Override
         protected void onCancelled(BitmapDrawable value) {
             super.onCancelled(value);
-            value = null;
             synchronized (mPauseWorkLock) {
                 mPauseWorkLock.notifyAll();
             }
+            value = null;
+
         }
 
 
@@ -331,7 +331,7 @@ public class ImageWorker {
             //task.execute(pictureList.get(position).toString(), position);
             // Log.v(TAG,Runtime.getRuntime().availableProcessors() + "");
 
-            task.executeOnExecutor(Executors.newFixedThreadPool(4, sThreadFactory), pictureList.get(position).toString(), position);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, pictureList.get(position).toString(), position);
 
             // task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR);
         }
