@@ -21,11 +21,11 @@ public class RssTotalTask extends AsyncTask<String, Integer, String> {
     private JSONObject jObject;
     private final String TAG = "RssTotalTask";
     private JSONArray rss = null;
-    private Context my_context;
+    private Context mContext;
 
     public RssTotalTask(Context context)
     {
-        my_context = context;
+        mContext = context;
     }
 
     @Override
@@ -54,8 +54,8 @@ public class RssTotalTask extends AsyncTask<String, Integer, String> {
                 JSONObject rssRow = (JSONObject) rss.get(0);
                 BlogFragment.totalRss = Integer.valueOf(rssRow.getString("total"));
                 Log.v(TAG, String.valueOf(BlogFragment.totalRss));
-                Toast.makeText(my_context, "總共" + BlogFragment.totalRss + "篇文章",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "總共" + BlogFragment.totalRss + "篇文章",
+                       Toast.LENGTH_SHORT).show();
 
             }
 

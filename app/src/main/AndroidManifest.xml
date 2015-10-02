@@ -10,6 +10,8 @@
         android:protectionLevel="signature" />
 
     <!-- The following four permissions -->
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -42,8 +44,9 @@
 
 
         <!-- 應用程式包含的服務元件 -->
-        <service android:name=".service.BasicTestService" ></service>
-        <service android:name=".service.CheckArticleService"></service>
+        <service android:name=".service.BasicTestService" />
+        <service android:name=".service.CheckArticleService" />
+        <service android:name=".service.UploadPicService" />
         <!-- 應用程式包含的廣播接收元件 -->
         <!-- 應用程式需要的額外資訊 -->
         <meta-data

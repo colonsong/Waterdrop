@@ -67,17 +67,13 @@ public class MyBaseAdapter extends BaseAdapter {
         // 自訂類別，表達個別listItem中的view物件集合。
         ViewHolder ViewHolder;
 
-
         if (convertView == null) {
             // 取得listItem容器 view
-
             int type = getItemViewType(position);
-            Log.d(TAG, "getView " + position + " " + convertView + " type = "
-                    + type);
             switch (type) {
                 case 0:
                     Log.d(TAG, "有圖");
-                    convertView = myInflater.inflate(R.layout.mylist, parent);
+                    convertView = myInflater.inflate(R.layout.mylist, null);
                     // 建構listItem內容view
                     ViewHolder = new ViewHolder(
                             (ImageView) convertView.findViewById(R.id.leftListIcon),
@@ -89,7 +85,7 @@ public class MyBaseAdapter extends BaseAdapter {
                     break;
                 default:
                     Log.d(TAG, "沒圖");
-                    convertView = myInflater.inflate(R.layout.mylist_noimg, parent);
+                    convertView = myInflater.inflate(R.layout.mylist_noimg, null);
                     // 建構listItem內容view
                     ViewHolder = new ViewHolder(
                             (TextView) convertView.findViewById(R.id.leftListText),
@@ -108,7 +104,7 @@ public class MyBaseAdapter extends BaseAdapter {
             ViewHolder = (ViewHolder) convertView.getTag();
 
             int type = getItemViewType(position);
-            if (type == 0)
+            if (type == 0 &&  ViewHolder.icon != null)
                 ViewHolder.icon.setImageResource(R.drawable.blank);
 
         }
@@ -126,7 +122,7 @@ public class MyBaseAdapter extends BaseAdapter {
 			}
 		}
 		*/
-        if (getItem(position).get("bitmap") != null) {
+        if (getItem(position).get("bitmap") != null ) {
             ImageView myImage = ViewHolder.icon;
             myImage.setImageBitmap((Bitmap) getItem(position).get("bitmap"));
 

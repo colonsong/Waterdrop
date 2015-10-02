@@ -23,27 +23,27 @@ import tw.waterdrop.waterdrop.activity.AlbumPic;
 import tw.waterdrop.waterdrop.adapter.AlbumBaseAdapter;
 import tw.waterdrop.waterdrop.task.AlbumImageDownloader;
 import tw.waterdrop.waterdrop.task.AlbumTask;
+import tw.waterdrop.waterdrop.util.AsyncTask;
 
 
 /**
  * Created by colon on 2014/7/24.
  */
 public class AlbumFragment extends Fragment {
-    public static final int INDEX=2;
+    public static final int INDEX = 2;
     private static final String TAG = "album";
     public static ArrayList<Map<String, Object>> albumList = new ArrayList<Map<String, Object>>();
     public static GridView album_grid;
     public static View rootView;
     public static HashMap<Integer, String> imageLoaded;
     public Map<Integer, Boolean> picIsRead = new HashMap<Integer, Boolean>();
-    public Context context;
+
     public static BaseAdapter baseAdapter;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        this.context = getActivity();
         return album(inflater, container);
 
 
@@ -54,7 +54,7 @@ public class AlbumFragment extends Fragment {
 
         if (albumList.size() == 0) {
             album_grid = (GridView) rootView.findViewById(R.id.album_grid);
-            AlbumTask albumTask = new AlbumTask(getActivity().getApplicationContext());
+            AlbumTask albumTask = new AlbumTask(getActivity());
 
             albumTask.execute();
             albumOnItemClickListener();
@@ -64,7 +64,7 @@ public class AlbumFragment extends Fragment {
             GridView gridview = (GridView) rootView
                     .findViewById(R.id.album_grid);
             ArrayList<HashMap<String, Object>> lstImageItem = new ArrayList<HashMap<String, Object>>();
-             baseAdapter = new AlbumBaseAdapter(getActivity(), albumList);
+            baseAdapter = new AlbumBaseAdapter(getActivity(), albumList);
 
             album_grid.setAdapter(baseAdapter);
             albumDrawImage(0, albumList.size() - 1);
@@ -92,27 +92,27 @@ public class AlbumFragment extends Fragment {
                         albumDrawImage(album_grid.getFirstVisiblePosition(),
                                 album_grid.getLastVisiblePosition());
                         Log.v(TAG, album_grid.getLastVisiblePosition() + "");
-                        int albumLastSize =  albumList.size();
+                        int albumLastSize = albumList.size();
                         // 避免重複讀取
                         if (picIsRead.get(albumLastSize) != null) {
-                            Toast.makeText(getActivity().getApplicationContext(), "讀取中..", Toast.LENGTH_SHORT)
+                            Toast.makeText(getActivity(), "讀取中..", Toast.LENGTH_SHORT)
                                     .show();
-                           return;
+                            return;
                         }
                         if (album_grid.getLastVisiblePosition() + 3 > albumLastSize) {
                             //到底了
 
 
-                                AlbumTask albumTask = new AlbumTask(getActivity().getApplicationContext());
-                                albumTask.execute();
-                                albumOnItemClickListener();
+                            AlbumTask albumTask = new AlbumTask(getActivity());
+                            albumTask.execute();
+                            albumOnItemClickListener();
 
-                                picIsRead.put(albumLastSize, true);
+                            picIsRead.put(albumLastSize, true);
 
-                                Toast.makeText(
-                                        getActivity().getApplicationContext(),
-                                        "讀取文章中..", Toast.LENGTH_SHORT
-                                ).show();
+                            Toast.makeText(
+                                    getActivity(),
+                                    "load pic..", Toast.LENGTH_SHORT
+                            ).show();
 
 
                         }
@@ -153,7 +153,7 @@ public class AlbumFragment extends Fragment {
                 continue;
             }
 
-            String hashUrl =imageLoaded.get(i);
+            String hashUrl = imageLoaded.get(i);
             if (hashUrl != null) {
                 // hm.put("image_blank", hashUrl);
                 // adapter.notifyDataSetChanged();
@@ -162,15 +162,13 @@ public class AlbumFragment extends Fragment {
                 HashMap<String, Object> albumMap = new HashMap<String, Object>();
                 albumMap.put("image", imgUrl);
                 albumMap.put("position", i);
-                imageLoader.execute(albumMap);
+                imageLoader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, albumMap);
             }
             // Temporary file to store the downloaded image
                 /*
-				 * File tmpFile = new File(MainActivity.cacheDirectory.getPath()
+                 * File tmpFile = new File(MainActivity.cacheDirectory.getPath()
 				 * + "/rss_cover_" + i + ".png");
 				 */
-
-
 
 
         }
@@ -182,18 +180,18 @@ public class AlbumFragment extends Fragment {
         album_grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity().getApplicationContext(), "轉換高解析照片中 " + position, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "轉換高解析照片中 " + position, Toast.LENGTH_LONG).show();
                 String pic = albumList.get(position).get("pic")
                         .toString();
 
                 Intent intent = new Intent();
-                intent.setClass(getActivity().getApplicationContext(), AlbumPic.class);
+                intent.setClass(getActivity(), AlbumPic.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("pic", pic);
                 bundle.putString("position", String.valueOf(position));
 
                 intent.putExtras(bundle);
-                getActivity().getApplicationContext().startActivity(intent);
+                getActivity().startActivity(intent);
             }
 
         });

@@ -1,8 +1,10 @@
 package tw.waterdrop.waterdrop.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +27,7 @@ import tw.waterdrop.waterdrop.activity.MainActivity;
 import tw.waterdrop.waterdrop.adapter.MyBaseAdapter;
 import tw.waterdrop.waterdrop.task.RssTask;
 import tw.waterdrop.waterdrop.task.RssTotalTask;
+import tw.waterdrop.waterdrop.task.ImageDownloader;
 
 
 
@@ -36,7 +39,7 @@ public class BlogFragment extends Fragment {
     public static final Number LoadingItemNum = 6;
     public static Queue<tw.waterdrop.waterdrop.task.ImageDownloader> imageQueue;
     public Map<Integer, Boolean> rssIsRead = new HashMap<Integer, Boolean>();
-    public View rootView;
+    private static View rootView;
     public static ProgressDialog rssDialog;
     public static ListView mListView;
     public static final String TAG = "Blog";
@@ -47,19 +50,21 @@ public class BlogFragment extends Fragment {
     public static boolean isReadRss = false;
     // private SimpleAdapter adapter;
     public static BaseAdapter adapter;
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    private static Context mContext;
 
-
-        return view(inflater, container);
-
-
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = this.getContext();
     }
-    public  View view(LayoutInflater inflater, ViewGroup container) {
-       rootView = inflater.inflate(R.layout.fragment_planet,
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_planet,
                 container, false);
         mListView = (ListView) rootView.findViewById(R.id.myListView);
-        imageQueue = new LinkedList<tw.waterdrop.waterdrop.task.ImageDownloader>();
+        imageQueue = new LinkedList<ImageDownloader>();
 
         if (isReadRss) {
             String[] from = new String[]{"image", "title",
@@ -68,7 +73,7 @@ public class BlogFragment extends Fragment {
                     R.id.leftListText, R.id.textView2,
                     R.id.descriptionText};
 
-            adapter = new MyBaseAdapter(getActivity(), RssTask.list);
+            adapter = new MyBaseAdapter(mContext, RssTask.list);
             mListView.setAdapter(adapter);
             mListView.post(new Runnable() {
                 public void run() {
@@ -81,7 +86,7 @@ public class BlogFragment extends Fragment {
         }
         isReadRss = true;
         // 避免在main使用new file增加效率，有值就代表曾經下載過了
-       imageLoaded = new HashMap<Integer, String>();
+        imageLoaded = new HashMap<Integer, String>();
 
         showrssDialog();
 
@@ -113,7 +118,7 @@ public class BlogFragment extends Fragment {
                 // adapter.notifyDataSetChanged();
             } else {
 
-                tw.waterdrop.waterdrop.task.ImageDownloader imageLoader = new tw.waterdrop.waterdrop.task.ImageDownloader();
+                ImageDownloader imageLoader = new ImageDownloader();
 
                 HashMap<String, Object> hmDownload = new HashMap<String, Object>();
                 hmDownload.put("image", imgUrl);
@@ -187,7 +192,7 @@ public class BlogFragment extends Fragment {
                             //到底了
                             if (rssLastSize < totalRss) {
 
-                                RssTask rssTask = new RssTask(getActivity().getApplicationContext());
+                                RssTask rssTask = new RssTask(mContext);
                                 rssTask.execute(
                                         "http://waterdrop.tw/mobile/blog/"
                                                 + rssLastSize + "/"
@@ -253,12 +258,12 @@ public class BlogFragment extends Fragment {
         rssDialog.show();
     }
     private  void _getRss() {
-        RssTask rssTask = new RssTask(getActivity().getApplicationContext());
+        RssTask rssTask = new RssTask(mContext);
 
         rssTask.execute("http://waterdrop.tw/mobile/blog");
         setListViewListener();
 
-        RssTotalTask rssTotalTask = new RssTotalTask(getActivity().getApplicationContext());
+        RssTotalTask rssTotalTask = new RssTotalTask(mContext);
         rssTotalTask.execute();
 
 

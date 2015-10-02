@@ -1,6 +1,9 @@
 package tw.waterdrop.waterdrop.fragment;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +35,11 @@ import java.util.Map;
 
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.adapter.UploadBaseAdapter;
+import tw.waterdrop.waterdrop.service.UploadPicService;
 import tw.waterdrop.waterdrop.util.ImageCache;
+import tw.waterdrop.waterdrop.util.MultipartUtility;
 import tw.waterdrop.waterdrop.util.ImageWorker;
+import tw.waterdrop.waterdrop.util.Utils;
 
 public class UploadPicFragment extends Fragment {
     public static final int INDEX = 3;
@@ -150,7 +157,7 @@ public class UploadPicFragment extends Fragment {
 
                 } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE){
                     imageWorker.setPauseWork(false);
-                    Log.v(TAG, "Scroll Log : UN LOCK");
+                    Log.v(TAG, "Scroll Log : SCROLL_STATE_IDLE");
                 } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
                 {
                     imageWorker.setPauseWork(false);
@@ -190,8 +197,11 @@ public class UploadPicFragment extends Fragment {
 
                 if (selectedPicMap.get(position) == null) {
 
-                    imageToAlpha(mContext, view, 80);
+                    imageToAlpha(mContext, view, 50);
                     selectedPicMap.put((int) id, true);
+                } else {
+                    selectedPicMap.remove(position);
+                    uploadBaseAdapter.notifyDataSetChanged();
                 }
             }
         });
@@ -241,7 +251,7 @@ public class UploadPicFragment extends Fragment {
     */
 
     public static Bitmap getViewBitmap(View view) {
-        Bitmap bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(360, 360, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         view.draw(canvas);
         return bitmap;
@@ -284,7 +294,7 @@ public class UploadPicFragment extends Fragment {
         //canvas.drawRect(0, 0, bitmap.getWidth(), bitmap.getHeight(), paint);
         // int cx = (360 - newBitmap.getWidth()) >> 1; // same as (...) / 2
         //int cy = (360 - newBitmap.getHeight()) >> 1;
-        canvas.drawBitmap(upload_bitmap, 100, 100, null);
+        canvas.drawBitmap(upload_bitmap, 0, 0, null);
         //drawBitmap
         //canvas.save(Canvas.ALL_SAVE_FLAG);
 
@@ -399,8 +409,6 @@ public class UploadPicFragment extends Fragment {
 
         // 判斷該執行什麼工作，目前還沒有加入需要執行的工作
         switch (itemId) {
-            case R.id.search_item:
-                break;
             // 使用者選擇新增選單項目
             case R.id.add_item:
                 mImageCache.mMemoryCache.evictAll();
@@ -417,9 +425,24 @@ public class UploadPicFragment extends Fragment {
 
                 break;
             // 刪除
-            case R.id.delete_item:
-                // 沒有選擇
+            case R.id.upload:
+                Log.v(TAG, selectedPicMap.toString());
+
+
+                for (Map.Entry entry : selectedPicMap.entrySet()) {
+                    Log.v(TAG,"Key : " + entry.getKey() + " Value : " + entry.getValue() +"path:" +  pictureList.get((int)entry.getKey()));
+                    final String path =   pictureList.get((int)entry.getKey()).toString();
+                    Log.v(TAG,"path : "+ path);
+                    Intent intent = new Intent(mContext,UploadPicService.class);
+                    intent.putExtra("path", path);
+                    mContext.startService(intent);
+                }
                 break;
+            case R.id.notification:
+
+                break;
+
+
             case R.id.googleplus_item:
                 break;
             case R.id.facebook_item:
