@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -27,8 +28,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -333,6 +337,15 @@ public class UploadPicFragment extends Fragment {
     private void getFiles(String url) {
         File files = new File(url);
         File[] file = files.listFiles();
+        Arrays.sort(file, new Comparator<File>() {
+            public int compare(File o1, File o2) {
+                    Log.v(TAG,o1.lastModified() + "");
+                Log.v(TAG,o2.lastModified() + "");
+                    return o1.lastModified() == o2.lastModified() ? 0 : (o1.lastModified() < o2.lastModified() ? 1 : -1 ) ;
+
+            }
+        });
+
 
         try {
             for (File f : file) {
@@ -419,9 +432,15 @@ public class UploadPicFragment extends Fragment {
                new Thread(){
                 public void run()
                 {
-                    mImageCache.initDiskCache();
+                    try {
+                        mImageCache.mDiskLruCache.delete();
+                        mImageCache.initDiskCache();
+                        Toast.makeText(mContext, "delete disk done", Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }}.start();
-                Toast.makeText(getActivity(), "clear Disk cache", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "clear Disk cache", Toast.LENGTH_SHORT).show();
 
                 break;
             // 刪除

@@ -70,7 +70,7 @@ public class ImageCache {
     private static final boolean DEFAULT_DISK_CACHE_ENABLED = true;
     private static final boolean DEFAULT_INIT_DISK_CACHE_ON_CREATE = false;
 
-    private DiskLruCache mDiskLruCache;
+    public DiskLruCache mDiskLruCache;
     public LruCache<String, BitmapDrawable> mMemoryCache;
     private ImageCacheParams mCacheParams;
     private final Object mDiskCacheLock = new Object();

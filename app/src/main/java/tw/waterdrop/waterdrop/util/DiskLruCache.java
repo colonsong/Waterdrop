@@ -16,6 +16,9 @@
 
 package tw.waterdrop.waterdrop.util;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -711,6 +714,7 @@ public final class DiskLruCache implements Closeable {
     public void delete() throws IOException {
         close();
         deleteContents(directory);
+        Log.v("@@@", "delete cache done");
     }
 
     private void validateKey(String key) {
