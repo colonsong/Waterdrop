@@ -339,8 +339,8 @@ public class UploadPicFragment extends Fragment {
         File[] file = files.listFiles();
         Arrays.sort(file, new Comparator<File>() {
             public int compare(File o1, File o2) {
-                    Log.v(TAG,o1.lastModified() + "");
-                Log.v(TAG,o2.lastModified() + "");
+                 //   Log.v(TAG,o1.lastModified() + "");
+             //   Log.v(TAG,o2.lastModified() + "");
                     return o1.lastModified() == o2.lastModified() ? 0 : (o1.lastModified() < o2.lastModified() ? 1 : -1 ) ;
 
             }

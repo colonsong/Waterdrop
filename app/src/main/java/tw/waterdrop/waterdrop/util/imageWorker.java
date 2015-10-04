@@ -96,9 +96,7 @@ public class ImageWorker {
                     }
                 }
             }
-            if(params == null) {
-                return null;
-            }
+
 
             final String position = String.valueOf(params[1]);
 

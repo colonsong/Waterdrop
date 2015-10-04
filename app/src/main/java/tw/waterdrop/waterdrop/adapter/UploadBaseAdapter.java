@@ -110,10 +110,10 @@ public class UploadBaseAdapter extends BaseAdapter {
 
 
         // imageView.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        if(position != 0)
-        {
+        Log.v(TAG,"positionTest" + position);
+
             imageWorker.drawImage(position, imageView);
-        }
+
 
         // viewTag.icon.setImageBitmap(
         //      decodeSampledBitmapFromResource(list.get(position).toString(), 120, 120));
