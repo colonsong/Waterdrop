@@ -1,9 +1,12 @@
 package tw.waterdrop.waterdrop.adapter;
 
+import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -11,7 +14,9 @@ import android.widget.ImageView;
 import java.util.List;
 import java.util.Map;
 
+import tw.waterdrop.waterdrop.activity.ImageDetailActivity;
 import tw.waterdrop.waterdrop.util.ImageWorker;
+import tw.waterdrop.waterdrop.util.Utils;
 
 public class UploadBaseAdapter extends BaseAdapter {
     private final static String TAG = "UploadBaseAdapter";
@@ -121,6 +126,7 @@ public class UploadBaseAdapter extends BaseAdapter {
         return imageView;
 
     }
+
 
 
 }

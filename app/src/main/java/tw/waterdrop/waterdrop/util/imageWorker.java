@@ -481,4 +481,6 @@ public class ImageWorker {
         //END_INCLUDE(add_bitmap_options)
     }
 
+
+
 }

@@ -41,6 +41,8 @@
         <activity android:name=".activity.AlbumPic" />
         <activity android:name=".activity.BasicTest.ServiceActivity" />
         <activity android:name=".activity.BasicTest.ThreadActivity" />
+        <activity
+            android:name=".activity.ImageDetailActivity" />
 
 
         <!-- 應用程式包含的服務元件 -->

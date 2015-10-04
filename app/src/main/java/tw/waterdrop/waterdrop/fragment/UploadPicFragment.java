@@ -1,5 +1,6 @@
 package tw.waterdrop.waterdrop.fragment;
 
+import android.app.ActivityOptions;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import tw.waterdrop.waterdrop.R;
+import tw.waterdrop.waterdrop.activity.ImageDetailActivity;
 import tw.waterdrop.waterdrop.adapter.UploadBaseAdapter;
 import tw.waterdrop.waterdrop.service.UploadPicService;
 import tw.waterdrop.waterdrop.util.ImageCache;
@@ -47,7 +49,7 @@ import tw.waterdrop.waterdrop.util.Utils;
 
 public class UploadPicFragment extends Fragment {
     public static final int INDEX = 3;
-    private List pictureList = new ArrayList();
+    public static List pictureList = new ArrayList();
     private static final String TAG = "UploadPIC";
     private static final String picture_path = "storage/ext_sd/DCIM/100MEDIA/";
 
@@ -159,16 +161,13 @@ public class UploadPicFragment extends Fragment {
                     imageWorker.setPauseWork(true);
 
 
-                } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE){
+                } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
                     imageWorker.setPauseWork(false);
                     Log.v(TAG, "Scroll Log : SCROLL_STATE_IDLE");
-                } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
-                {
+                } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                     imageWorker.setPauseWork(false);
                     Log.v(TAG, "Scroll Log : SCROLL_STATE_TOUCH_SCROLL");
-                }
-                else
-                {
+                } else {
                     Log.v(TAG, "Scroll Log : SCROLL_STATE ELSE");
                 }
             }
@@ -182,7 +181,26 @@ public class UploadPicFragment extends Fragment {
             }
         });
 
+        grid_view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                                           int position, long id) {
+                final Intent i = new Intent(getActivity(), ImageDetailActivity.class);
+                i.putExtra(ImageDetailActivity.EXTRA_IMAGE, (int) id);
+                if (Utils.hasJellyBean()) {
+                    // makeThumbnailScaleUpAnimation() looks kind of ugly here as the loading spinner may
+                    // show plus the thumbnail image in GridView is cropped. so using
+                    // makeScaleUpAnimation() instead.
+                    ActivityOptions options =
+                            ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getHeight());
+                    getActivity().startActivity(i, options.toBundle());
+                } else {
+                    getActivity().startActivity(i);
+                }
+                return false;
+            }
+        });
         grid_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -339,9 +357,9 @@ public class UploadPicFragment extends Fragment {
         File[] file = files.listFiles();
         Arrays.sort(file, new Comparator<File>() {
             public int compare(File o1, File o2) {
-                 //   Log.v(TAG,o1.lastModified() + "");
-             //   Log.v(TAG,o2.lastModified() + "");
-                    return o1.lastModified() == o2.lastModified() ? 0 : (o1.lastModified() < o2.lastModified() ? 1 : -1 ) ;
+                //   Log.v(TAG,o1.lastModified() + "");
+                //   Log.v(TAG,o2.lastModified() + "");
+                return o1.lastModified() == o2.lastModified() ? 0 : (o1.lastModified() < o2.lastModified() ? 1 : -1);
 
             }
         });
@@ -469,4 +487,6 @@ public class UploadPicFragment extends Fragment {
         }
         return false;
     }
+
+
 }
