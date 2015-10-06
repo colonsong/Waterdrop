@@ -2,8 +2,6 @@ package tw.waterdrop.waterdrop.activity;
 
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.media.Image;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
-import android.widget.Toast;
 
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.fragment.ImageDetailFragment;
@@ -32,7 +29,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
     public static final String EXTRA_IMAGE = "extra_image";
     private static ImageCache mImageCache;
     private ImagePagerAdapter mAdapter;
-    private ImageWorker mImageFetcher;
+
     private ViewPager mPager;
     private ImageWorker imageWorker;
 
@@ -106,20 +103,20 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
     @Override
     public void onResume() {
         super.onResume();
-        //mImageFetcher.setExitTasksEarly(false);
+        //imageWorker.setExitTasksEarly(false);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-       // mImageFetcher.setExitTasksEarly(true);
-      //  mImageFetcher.flushCache();
+       // imageWorker.setExitTasksEarly(true);
+      //  imageWorker.flushCache();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-     //   mImageFetcher.closeCache();
+     //   imageWorker.closeCache();
     }
 
     @Override
@@ -143,7 +140,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
      * Called by the ViewPager child fragments to load images via the one ImageFetcher
      */
     public ImageWorker getImageFetcher() {
-        return mImageFetcher;
+        return imageWorker;
     }
 
     /**

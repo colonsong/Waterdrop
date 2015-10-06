@@ -42,7 +42,7 @@ public class ImageDetailFragment extends Fragment {
     private static final String IMAGE_DATA_EXTRA = "picPosition";
     private int picPosition = 0;
     private ImageView mImageView;
-    private ImageWorker mImageFetcher;
+    private ImageWorker imageWorker;
 
     /**
      * Factory method to generate a new instance of the fragment given an image number.
@@ -92,7 +92,9 @@ public class ImageDetailFragment extends Fragment {
         // cache can be used over all pages in the ViewPager
         if (ImageDetailActivity.class.isInstance(getActivity())) {
 
-            mImageFetcher.drawImage(picPosition, mImageView);
+            imageWorker = ((ImageDetailActivity) getActivity()).getImageFetcher();
+            imageWorker.setLoadingImage(R.drawable.blank);
+            imageWorker.loadImage(picPosition, mImageView);
         }
 
         // Pass clicks on the ImageView to the parent activity to handle

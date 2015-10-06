@@ -113,11 +113,12 @@ public class ImageWorker {
 
             if (getAttachedImageView() != null && imageCache != null && !isCancelled()
                     ) {
+                path = params[0].toString();
 
-                bitmap = imageCache.getBitmapFromDiskCache(position);
+                bitmap = imageCache.getBitmapFromDiskCache(path);
                 if(bitmap == null)
                 {
-                    path = params[0].toString();
+
                     options = new BitmapFactory.Options();
                     //先取寬高
                     options.inJustDecodeBounds = true;
@@ -157,7 +158,7 @@ public class ImageWorker {
                         }
 
 
-                            imageCache.addBitmapToCache(position, drawable);
+                            imageCache.addBitmapToCache(path, drawable);
 
 
                     }
@@ -166,7 +167,7 @@ public class ImageWorker {
                 {
                     drawable = new BitmapDrawable(mResources, bitmap);
                     Log.v(TAG,"DiskImage MyUploadImage"+ position);
-                    imageCache.mMemoryCache.put(position,drawable);
+                    imageCache.mMemoryCache.put(path,drawable);
                     return drawable;
 
                 }
@@ -295,16 +296,57 @@ public class ImageWorker {
 
     }
 
+    /**
+     * Load an image specified by the data parameter into an ImageView (override
+     * {@link ImageWorker#processBitmap(Object)} to define the processing logic). A memory and
+     * disk cache will be used if an {@link ImageCache} has been added using
+     * {@link ImageWorker#addImageCache(android.support.v4.app.FragmentManager, ImageCache.ImageCacheParams)}. If the
+     * image is found in the memory cache, it is set immediately, otherwise an {@link AsyncTask}
+     * will be created to asynchronously load the bitmap.
+     *
+     * @param data The URL of the image to download.
+     * @param imageView The ImageView to bind the downloaded image to.
+     */
+    public void loadImage(int position, ImageView imageView) {
 
+
+        BitmapDrawable value = null;
+
+        if (imageCache != null) {
+            final String path = pictureList.get(position).toString();
+
+
+            value = imageCache.getBitmapFromMemCache(path);
+        }
+
+        if (value != null) {
+            // Bitmap found in memory cache
+            imageView.setImageDrawable(value);
+        } else if (cancelPotentialWork(position, imageView)) {
+            //BEGIN_INCLUDE(execute_background_task)
+            final LoadPicTask task = new LoadPicTask(mContext, imageView);
+            final AsyncDrawable asyncDrawable =
+                    new AsyncDrawable(mResources, mLoadingBitmap, task);
+            imageView.setImageDrawable(asyncDrawable);
+
+            // NOTE: This uses a custom version of AsyncTask that has been pulled from the
+            // framework and slightly modified. Refer to the docs at the top of the class
+            // for more info on what was changed.
+            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR);
+            //END_INCLUDE(execute_background_task)
+        }
+    }
     public void drawImage(int position, ImageView imageView) {
 
         BitmapDrawable bitmap = null;
+        final String path = pictureList.get(position).toString();
         Log.v(TAG,"drawImage Memory "+ position );
         String sPosition = String.valueOf(position);
 
+
         if(imageCache != null)
         {
-            bitmap = imageCache.getBitmapFromMemCache(sPosition);
+            bitmap = imageCache.getBitmapFromMemCache(path);
         }
 
         if (bitmap != null) {
