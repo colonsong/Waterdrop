@@ -66,6 +66,9 @@ public class ImageWorker {
 
     }
 
+    public void setColumnWidthPixel(int width) {
+        this.columnWidthPixel = width;
+    }
 
     private class LoadPicTask extends AsyncTask<Object, Void, BitmapDrawable> {
         private final WeakReference<ImageView> imageViewReference;
@@ -73,11 +76,13 @@ public class ImageWorker {
         private String path;
         private Object mData;
         private BitmapFactory.Options options;
+        private String cacheKey;
 
-        public LoadPicTask(Object data, ImageView imageView) {
+        public LoadPicTask(Object data, ImageView imageView, String cacheKey) {
             mData  = data;
             // Use a WeakReference to ensure the ImageView can be garbage collected
             imageViewReference = new WeakReference<ImageView>(imageView);
+            this.cacheKey = cacheKey;
 
         }
 
@@ -98,7 +103,7 @@ public class ImageWorker {
             }
 
 
-            final String position = String.valueOf(params[1]);
+           // final String position = String.valueOf(params[1]);
 
             BitmapDrawable drawable = null;
             Bitmap bitmap = null;
@@ -115,7 +120,7 @@ public class ImageWorker {
                     ) {
                 path = params[0].toString();
 
-                bitmap = imageCache.getBitmapFromDiskCache(path);
+                bitmap = imageCache.getBitmapFromDiskCache(cacheKey);
                 if(bitmap == null)
                 {
 
@@ -158,7 +163,7 @@ public class ImageWorker {
                         }
 
 
-                            imageCache.addBitmapToCache(path, drawable);
+                            imageCache.addBitmapToCache(cacheKey, drawable);
 
 
                     }
@@ -166,14 +171,14 @@ public class ImageWorker {
                 else
                 {
                     drawable = new BitmapDrawable(mResources, bitmap);
-                    Log.v(TAG,"DiskImage MyUploadImage"+ position);
-                    imageCache.mMemoryCache.put(path,drawable);
+                   // Log.v(TAG,"DiskImage MyUploadImage"+ position);
+                    imageCache.mMemoryCache.put(cacheKey,drawable);
                     return drawable;
 
                 }
             }
 
-            Log.v(TAG,"takstest task do background down" + position);
+            //Log.v(TAG,"takstest task do background down" + position);
             options = null;
             mData = null;
             path = null;
@@ -311,12 +316,13 @@ public class ImageWorker {
 
 
         BitmapDrawable value = null;
-
+        final String path = UploadPicFragment.pictureList.get(position).toString();
+        final String cacheKey = "picDetail_" + path;
         if (imageCache != null) {
-            final String path = pictureList.get(position).toString();
 
 
-            value = imageCache.getBitmapFromMemCache(path);
+
+            value = imageCache.getBitmapFromMemCache(cacheKey);
         }
 
         if (value != null) {
@@ -324,7 +330,7 @@ public class ImageWorker {
             imageView.setImageDrawable(value);
         } else if (cancelPotentialWork(position, imageView)) {
             //BEGIN_INCLUDE(execute_background_task)
-            final LoadPicTask task = new LoadPicTask(mContext, imageView);
+            final LoadPicTask task = new LoadPicTask(mContext, imageView,cacheKey);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mResources, mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
@@ -332,7 +338,7 @@ public class ImageWorker {
             // NOTE: This uses a custom version of AsyncTask that has been pulled from the
             // framework and slightly modified. Refer to the docs at the top of the class
             // for more info on what was changed.
-            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR);
+            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR,path, position);
             //END_INCLUDE(execute_background_task)
         }
     }
@@ -363,7 +369,7 @@ public class ImageWorker {
 
         } else if (cancelPotentialWork(position, imageView)) {
 
-            final LoadPicTask task = new LoadPicTask(mContext, imageView);
+            final LoadPicTask task = new LoadPicTask(mContext, imageView,path);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mResources, mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);

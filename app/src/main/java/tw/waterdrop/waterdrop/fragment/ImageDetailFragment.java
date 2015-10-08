@@ -16,21 +16,15 @@
 
 package tw.waterdrop.waterdrop.fragment;
 
-import android.annotation.TargetApi;
-import android.app.ActivityOptions;
-import android.content.Intent;
-import android.media.Image;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-
-import java.io.Serializable;
 
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.activity.ImageDetailActivity;
@@ -43,6 +37,8 @@ public class ImageDetailFragment extends Fragment {
     private int picPosition = 0;
     private ImageView mImageView;
     private ImageWorker imageWorker;
+    public static final String TAG = "ImageDetailFragment";
+    private int displayWidth;
 
     /**
      * Factory method to generate a new instance of the fragment given an image number.
@@ -56,6 +52,8 @@ public class ImageDetailFragment extends Fragment {
         final Bundle args = new Bundle();
         args.putInt(IMAGE_DATA_EXTRA, position);
         f.setArguments(args);
+
+
 
         return f;
     }
@@ -73,6 +71,13 @@ public class ImageDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         picPosition = getArguments() != null ? getArguments().getInt(IMAGE_DATA_EXTRA) : 0;
+        // 取得螢幕解析度
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+
+        displayWidth = displaymetrics.widthPixels;
+
+
     }
 
     @Override
@@ -93,7 +98,10 @@ public class ImageDetailFragment extends Fragment {
         if (ImageDetailActivity.class.isInstance(getActivity())) {
 
             imageWorker = ((ImageDetailActivity) getActivity()).getImageFetcher();
+
             imageWorker.setLoadingImage(R.drawable.blank);
+Log.v(TAG,displayWidth + "");
+            imageWorker.setColumnWidthPixel(displayWidth);
             imageWorker.loadImage(picPosition, mImageView);
         }
 

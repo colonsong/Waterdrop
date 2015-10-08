@@ -30,6 +30,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
     private static ImageCache mImageCache;
     private ImagePagerAdapter mAdapter;
 
+
     private ViewPager mPager;
     private ImageWorker imageWorker;
 
