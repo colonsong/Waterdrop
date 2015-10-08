@@ -6,6 +6,8 @@
     <string name="title_section3">上傳照片</string>
     <string name="title_section4">基本功</string>
 
+    <string name="title_section5">滴一滴水</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
@@ -20,6 +22,7 @@
         <item>相簿</item>
         <item>上傳照片</item>
         <item>基本功</item>
+        <item>滴一滴水</item>
 
     </string-array>
     <string name="test1">Service</string>

@@ -60,7 +60,7 @@ public class NavigationDrawerFragment extends Fragment {
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 
-    private int mCurrentSelectedPosition = 0;
+    private int mCurrentSelectedPosition = 5;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
@@ -94,7 +94,7 @@ public class NavigationDrawerFragment extends Fragment {
     private SimpleAdapter _getDrawerMenuAdapter()
     {
         //左邊選單圖片
-        int[] img = {R.drawable.map, R.drawable.fruit, R.drawable.album,R.drawable.upload_img,R.drawable.upload_img};
+        int[] img = {R.drawable.map, R.drawable.fruit, R.drawable.album,R.drawable.upload_img,R.drawable.upload_img,R.drawable.upload_img};
 
         ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
 

@@ -1,6 +1,5 @@
 package tw.waterdrop.waterdrop.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,11 +8,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.io.File;
 
@@ -22,6 +18,7 @@ import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.fragment.AlbumFragment;
 import tw.waterdrop.waterdrop.fragment.BasicTestFragment;
 import tw.waterdrop.waterdrop.fragment.BlogFragment;
+import tw.waterdrop.waterdrop.fragment.BlogTabFragment;
 import tw.waterdrop.waterdrop.fragment.MapFragment;
 import tw.waterdrop.waterdrop.fragment.NavigationDrawerFragment;
 import tw.waterdrop.waterdrop.fragment.UploadPicFragment;
@@ -122,11 +119,12 @@ public class MainActivity extends ActionBarActivity
         String tag = "";
         switch (position) {
             case 0:
-                tag = BasicTestFragment.class.getSimpleName();
+                tag = MapFragment.class.getSimpleName();
                 fragment = getSupportFragmentManager().findFragmentByTag(tag);
                 if (fragment == null) {
-                    fragment = new BasicTestFragment();
+                    fragment = new MapFragment();
                 }
+
 
                 break;
 
@@ -152,10 +150,17 @@ public class MainActivity extends ActionBarActivity
                 }
                 break;
             case 4:
-                tag = MapFragment.class.getSimpleName();
+                tag = BasicTestFragment.class.getSimpleName();
                 fragment = getSupportFragmentManager().findFragmentByTag(tag);
                 if (fragment == null) {
-                    fragment = new MapFragment();
+                    fragment = new BasicTestFragment();
+                }
+                break;
+            case 5:
+                tag = BlogTabFragment.class.getSimpleName();
+                fragment = getSupportFragmentManager().findFragmentByTag(tag);
+                if (fragment == null) {
+                    fragment = new BlogTabFragment();
                 }
                 break;
 
@@ -192,6 +197,10 @@ public class MainActivity extends ActionBarActivity
 
             case 4:
                 mTitle = getString(R.string.title_section4);
+                break;
+
+            case 5:
+                mTitle = getString(R.string.title_section5);
                 break;
         }
     }
@@ -232,44 +241,6 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
-    }
 
 }
