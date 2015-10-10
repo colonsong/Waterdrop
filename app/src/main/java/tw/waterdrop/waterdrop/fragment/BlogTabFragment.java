@@ -3,6 +3,7 @@ package tw.waterdrop.waterdrop.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +22,15 @@ public class BlogTabFragment extends Fragment {
     private FragmentTabHost mTabHost;
 
 
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mTabHost = new FragmentTabHost(getActivity());
-        mTabHost.setup(getActivity(), getChildFragmentManager(), R.id.tabFrameLayout);
+
+
+        View view = inflater.inflate(R.layout.blog_tabs,container,false);
+        mTabHost = (FragmentTabHost) view.findViewById(android.R.id.tabhost);
+
+
+        mTabHost.setup(getActivity(), getChildFragmentManager(),R.id.realtabcontent);
 
 
         mTabHost.addTab(
