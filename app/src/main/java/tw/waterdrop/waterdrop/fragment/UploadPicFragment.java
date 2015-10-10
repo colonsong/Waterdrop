@@ -441,12 +441,12 @@ public class UploadPicFragment extends Fragment {
         // 判斷該執行什麼工作，目前還沒有加入需要執行的工作
         switch (itemId) {
             // 使用者選擇新增選單項目
-            case R.id.add_item:
+            case R.id.reset_memory:
                 mImageCache.mMemoryCache.evictAll();
                 Toast.makeText(getActivity(), "clear Memory cache", Toast.LENGTH_SHORT).show();
                 break;
             // 取消所有已勾選的項目
-            case R.id.revert_item:
+            case R.id.reset_disk:
                new Thread(){
                 public void run()
                 {
@@ -475,15 +475,7 @@ public class UploadPicFragment extends Fragment {
                     mContext.startService(intent);
                 }
                 break;
-            case R.id.notification:
 
-                break;
-
-
-            case R.id.googleplus_item:
-                break;
-            case R.id.facebook_item:
-                break;
         }
         return false;
     }

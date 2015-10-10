@@ -5,50 +5,25 @@
 
 
     <item
-        android:id="@+id/add_item"
+        android:id="@+id/reset_memory"
         app:showAsAction="always"
         android:title="ADD"
-        android:icon="@android:drawable/ic_notification_clear_all"
+        android:icon="@drawable/simcard"
         />
 
     <item
-        android:id="@+id/revert_item"
+        android:id="@+id/reset_disk"
         app:showAsAction="always"
         android:title="REVERT"
-        android:icon="@android:drawable/ic_menu_revert"
+        android:icon="@drawable/disk"
         />
 
     <item
         android:id="@+id/upload"
         app:showAsAction="always"
         android:title="UPLOAD"
-        android:icon="@android:drawable/ic_menu_upload"
+        android:icon="@drawable/upload_circle"
         />
 
-    <item
-        android:id="@+id/notification"
-        app:showAsAction="always"
-        android:title="UPLOAD"
-        android:icon="@android:drawable/ic_notification_overlay"
-        />
 
-    <item
-        android:id="@+id/share_item"
-        app:showAsAction="always"
-        android:title="SHARE"
-        android:icon="@android:drawable/ic_menu_share" >
-
-
-
-        <menu>
-            <item
-                android:id="@+id/googleplus_item"
-                android:title="Google+"
-               />
-            <item
-                android:id="@+id/facebook_item"
-                android:title="Facebook"
-               />
-        </menu>
-    </item>
 </menu>

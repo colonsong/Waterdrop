@@ -94,7 +94,7 @@ public class NavigationDrawerFragment extends Fragment {
     private SimpleAdapter _getDrawerMenuAdapter()
     {
         //左邊選單圖片
-        int[] img = {R.drawable.map, R.drawable.fruit, R.drawable.album,R.drawable.upload_img,R.drawable.upload_img,R.drawable.upload_img};
+        int[] img = {R.drawable.french_50, R.drawable.paper_50, R.drawable.picture_50,R.drawable.upload_50,R.drawable.paper_50,R.drawable.paper_50};
 
         ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
 

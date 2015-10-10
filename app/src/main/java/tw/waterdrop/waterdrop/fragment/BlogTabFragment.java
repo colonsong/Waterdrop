@@ -41,7 +41,7 @@ public class BlogTabFragment extends Fragment {
                 mTabHost.newTabSpec("tab3").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section0, R.drawable.french_50)),
                 MapFragment.class, null);
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab3").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section3, R.drawable.upload_50)),
+                mTabHost.newTabSpec("tab4").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section3, R.drawable.upload_50)),
                 UploadPicFragment.class, null);
 
         return mTabHost;
