@@ -29,7 +29,7 @@
           <ImageView
               android:id="@+id/leftListIcon"
               android:layout_width="30dp"
-              android:layout_height="26dp"
+              android:layout_height="35dp"
               android:src="@drawable/fruit" />
 
           <TextView

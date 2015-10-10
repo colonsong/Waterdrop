@@ -28,22 +28,20 @@ public class BlogTabFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.blog_tabs,container,false);
         mTabHost = (FragmentTabHost) view.findViewById(android.R.id.tabhost);
-
-
         mTabHost.setup(getActivity(), getChildFragmentManager(),R.id.realtabcontent);
-
+        mTabHost.getTabWidget().setDividerDrawable(null);
 
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab1").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section1, android.R.drawable.star_on)),
+                mTabHost.newTabSpec("tab1").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section1, R.drawable.paper_50)),
                 BlogFragment.class, null);
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab2").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section2, android.R.drawable.star_on)),
+                mTabHost.newTabSpec("tab2").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section2, R.drawable.picture_50)),
                 AlbumFragment.class, null);
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab3").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section0, android.R.drawable.star_on)),
+                mTabHost.newTabSpec("tab3").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section0, R.drawable.french_50)),
                 MapFragment.class, null);
         mTabHost.addTab(
-                mTabHost.newTabSpec("tab3").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section3, android.R.drawable.star_on)),
+                mTabHost.newTabSpec("tab3").setIndicator(getTabIndicator(mTabHost.getContext(), R.string.title_section3, R.drawable.upload_50)),
                 UploadPicFragment.class, null);
 
         return mTabHost;
