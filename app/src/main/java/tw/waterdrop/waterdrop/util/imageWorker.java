@@ -10,10 +10,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -345,6 +347,7 @@ public class ImageWorker {
     public void drawImage(int position, ImageView imageView) {
 
         BitmapDrawable bitmap = null;
+
         final String path = pictureList.get(position).toString();
         Log.v(TAG,"drawImage Memory "+ position );
         String sPosition = String.valueOf(position);

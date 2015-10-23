@@ -1,8 +1,6 @@
 package tw.waterdrop.waterdrop.fragment;
 
 import android.app.ActivityOptions;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -29,39 +26,43 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import tw.waterdrop.waterdrop.R;
 import tw.waterdrop.waterdrop.activity.ImageDetailActivity;
 import tw.waterdrop.waterdrop.adapter.UploadBaseAdapter;
+import tw.waterdrop.waterdrop.entity.Photo;
+import tw.waterdrop.waterdrop.entity.PhotoDirectory;
 import tw.waterdrop.waterdrop.service.UploadPicService;
 import tw.waterdrop.waterdrop.util.ImageCache;
-import tw.waterdrop.waterdrop.util.MultipartUtility;
 import tw.waterdrop.waterdrop.util.ImageWorker;
+import tw.waterdrop.waterdrop.util.MediaStoreHelper;
 import tw.waterdrop.waterdrop.util.Utils;
 
 public class UploadPicFragment extends Fragment {
     public static final int INDEX = 3;
-    public static List pictureList = new ArrayList();
+    public static List pictureList;
     private static final String TAG = "UploadPIC";
     private static final String picture_path = "storage/ext_sd/DCIM/100MEDIA/";
 
     private static final String IMAGE_CACHE_DIR = "thumbs";
     private BaseAdapter uploadBaseAdapter;
-    private static List titleList = new ArrayList();
+    private static List titleList;
     private static ImageCache mImageCache;
     private Context mContext;
     private ImageWorker imageWorker;
 
     private int mImageThumbSize;
     private int mImageThumbSpacing;
+
+    private List<PhotoDirectory> directories;
 
 
     private static Map<Integer, Boolean> selectedPicMap = new HashMap<Integer, Boolean>();
@@ -117,7 +118,7 @@ public class UploadPicFragment extends Fragment {
         ImageCache.ImageCacheParams cacheParams =
                 new ImageCache.ImageCacheParams(getActivity(), IMAGE_CACHE_DIR);
         cacheParams.setMemCacheSizePercent(0.3f); // Set memory cache to 25% of app memory
-        mImageCache = ImageCache.getInstance(getActivity().getSupportFragmentManager(),cacheParams);
+        mImageCache = ImageCache.getInstance(getActivity().getSupportFragmentManager(), cacheParams);
         new Thread(){
             public void run()
             {
@@ -125,12 +126,38 @@ public class UploadPicFragment extends Fragment {
 
             }}.start();
 
-        getFiles(picture_path);
-
-
+        pictureList  = new ArrayList();
+        titleList = new ArrayList();
+        setPhotos();
+        //getFiles(picture_path);
 
     }
 
+    public void setPhotos()
+    {
+        directories = new ArrayList<>();
+
+        Bundle mediaStoreArgs = new Bundle();
+        MediaStoreHelper.getPhotoDirs(getActivity(), mediaStoreArgs,
+                new MediaStoreHelper.PhotosResultCallback() {
+                    @Override
+                    public void onResultCallback(List<PhotoDirectory> dirs) {
+                        directories.clear();
+                        directories.addAll(dirs);
+
+                        List<Photo> photos = directories.get(0).getPhotos();
+                        Iterator iterator = photos.iterator();
+                        while(iterator.hasNext())
+                        {
+                            Photo photo = (Photo)iterator.next();
+                            pictureList.add(photo.getPath());
+                            titleList.add(photo.getPath().substring(0, photo.getPath().lastIndexOf(".")));
+                        }
+
+                        uploadBaseAdapter.notifyDataSetChanged();
+                    }
+                });
+    }
 
 
     @Override

@@ -20,12 +20,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import tw.waterdrop.waterdrop.R;
-import tw.waterdrop.waterdrop.fragment.AlbumFragment;
 
 
 
@@ -56,6 +52,7 @@ public class AlbumPic extends Activity {
             albumPicView.setImageBitmap(myBitmap);
             return;
         }
+        /*
         Map<String, Object> hm = AlbumFragment.albumList.get(position);
 
 
@@ -78,6 +75,7 @@ public class AlbumPic extends Activity {
         hmDownload.put("image", pic);
         hmDownload.put("position", position);
         imageLoader.execute(hmDownload);
+        */
 
     }
 

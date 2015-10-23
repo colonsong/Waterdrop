@@ -3,8 +3,6 @@ package tw.waterdrop.waterdrop.task;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.GridView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,7 +14,6 @@ import java.util.Map;
 
 import tw.waterdrop.lib.JSON;
 import tw.waterdrop.waterdrop.R;
-import tw.waterdrop.waterdrop.adapter.AlbumBaseAdapter;
 import tw.waterdrop.waterdrop.fragment.AlbumFragment;
 
 
@@ -32,9 +29,11 @@ public class AlbumTask extends
     private static boolean isUpdate = false;
     private JSONArray album = null;
     private Context my_context;
-    public AlbumTask(Context context)
+    private AlbumFragment albumFragment;
+    public AlbumTask(AlbumFragment albumFragment)
     {
-        my_context  =  context;
+        my_context  =  albumFragment.getActivity();
+        this.albumFragment = albumFragment;
     }
     @Override
     protected String doInBackground(Integer... data) {
@@ -74,40 +73,10 @@ public class AlbumTask extends
                 Map<String, Object> albumMap = new HashMap<String, Object>();
                 albumMap.put("pic_blank", R.drawable.blank);
                 albumMap.put("pic", rssRow.get("pic"));
-
-                AlbumFragment.albumList.add(albumMap);
-
-            }
-
-            if (isUpdate) {
-                //OTHER RSS LOAD HERE
-                AlbumFragment.baseAdapter.notifyDataSetChanged();
-                Toast.makeText(my_context, "讀取完成", Toast.LENGTH_SHORT)
-                        .show();
-
-            } else {
-                isUpdate = true;
-                AlbumFragment.album_grid = (GridView) AlbumFragment.rootView
-                        .findViewById(R.id.album_grid);
-                //ArrayList<HashMap<String, Object>> lstImageItem = new ArrayList<HashMap<String, Object>>();
-                AlbumFragment.baseAdapter = new AlbumBaseAdapter(my_context, AlbumFragment.albumList);
-
-
-                AlbumFragment.album_grid.setAdapter(AlbumFragment.baseAdapter);
-                Log.v(TAG, AlbumFragment.album_grid.getFirstVisiblePosition()+"@" +AlbumFragment.album_grid.getLastVisiblePosition()) ;
-                //AlbumFragment.albumDrawImage(AlbumFragment.album_grid.getFirstVisiblePosition(),AlbumFragment.album_grid.getLastVisiblePosition() );
-
-                AlbumFragment.album_grid.post(new Runnable() {
-                    public void run() {
-                        AlbumFragment.albumDrawImage(
-                                AlbumFragment.album_grid.getFirstVisiblePosition(),
-                                AlbumFragment.album_grid.getLastVisiblePosition());
-
-                    }
-                });
+                albumFragment.getAlbumlist().add(albumMap);
 
             }
-
+            AlbumFragment.baseAdapter.notifyDataSetChanged();
 
 
 

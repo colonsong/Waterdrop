@@ -19,7 +19,7 @@ public class UploadBaseAdapter extends BaseAdapter {
 
     private Context mContext;
     private GridView.LayoutParams mImageViewLayoutParams;
-    private int pictureListSize;
+
 
     public static Map<Integer, Boolean> selectedPicMap;
     private ImageWorker imageWorker;
@@ -30,7 +30,7 @@ public class UploadBaseAdapter extends BaseAdapter {
         Log.v(TAG, "gridview constructor");
         this.mContext = context;
         this.pictureList = pictureList;
-        this.pictureListSize = pictureList.size();
+
         this.selectedPicMap = selectedPicMap;
         this.imageWorker = imageWorker;
         this.mImageViewLayoutParams = new GridView.
@@ -42,7 +42,7 @@ public class UploadBaseAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         Log.v(TAG,"gridview getCount" );
-        return pictureListSize;
+        return pictureList.size();
     }
 
     @Override
