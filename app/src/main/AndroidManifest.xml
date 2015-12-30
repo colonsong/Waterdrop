@@ -41,6 +41,7 @@
         <activity android:name=".activity.AlbumPic" />
         <activity android:name=".activity.BasicTest.ServiceActivity" />
         <activity android:name=".activity.BasicTest.ThreadActivity" />
+        <activity android:name=".activity.BasicTest.BasicRecycleViewActivity" />
         <activity
             android:name=".activity.ImageDetailActivity" />
 
