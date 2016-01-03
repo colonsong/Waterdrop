@@ -14,15 +14,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tw.waterdrop.waterdrop.R;
+import tw.waterdrop.waterdrop.activity.BasicTest.BasicRecycleViewActivity;
 import tw.waterdrop.waterdrop.activity.BasicTest.ServiceActivity;
 import tw.waterdrop.waterdrop.activity.BasicTest.ThreadActivity;
 
+/**
+ * step new Activity
+ * add in sampleArray
+ * add class in android Manifext.xml
+ */
 
 public class BasicTestFragment extends Fragment {
     public static final int INDEX =0;
+    //private static final = const
     private static final SampleTest[] samplesArray = new SampleTest[]{
             new SampleTest(R.string.test1,ServiceActivity.class),
             new SampleTest(R.string.test2,ThreadActivity.class),
+            new SampleTest(R.string.BasicRecycleView,BasicRecycleViewActivity.class),
     };
 
     private static class SampleTest{

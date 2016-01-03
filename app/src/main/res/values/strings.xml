@@ -27,6 +27,7 @@
     </string-array>
     <string name="test1">Service</string>
     <string name="test2">Thread</string>
+    <string name="BasicRecycleView">BasicRecycleView</string>
     <string name="share">分享</string>
     <string name="action_refresh">重新整理</string>
     <string name="action_edit">編輯</string>
