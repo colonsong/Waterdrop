@@ -57,6 +57,15 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyA7I80VMfDGJnZtXxdxFqAc2KfSqiTpwnE" />
+
+        <receiver android:name=".Receiver.ShutdownBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+                <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
+                <action android:name="android.intent.action.REBOOT" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
