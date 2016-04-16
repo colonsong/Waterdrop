@@ -85,6 +85,7 @@ public class UploadPicFragment extends Fragment {
         //設定環境
         mContext = getActivity().getApplicationContext();
 
+
         //能夠挖到的最大內存
         //int maxMemory = (int) Runtime.getRuntime().maxMemory();
         //從虛擬機挖多少內存過來
@@ -95,6 +96,12 @@ public class UploadPicFragment extends Fragment {
         doController();
 
     }
+
+    private void checkPermisson()
+    {
+
+    }
+
 
     private void doController() {
 

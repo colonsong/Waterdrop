@@ -2,12 +2,9 @@ package tw.waterdrop.waterdrop.activity;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
@@ -18,17 +15,15 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
 
 import tw.waterdrop.waterdrop.R;
-import tw.waterdrop.waterdrop.fragment.ImageDetailFragment;
-import tw.waterdrop.waterdrop.fragment.UploadPicFragment;
 import tw.waterdrop.waterdrop.util.ImageCache;
 import tw.waterdrop.waterdrop.util.ImageWorker;
 import tw.waterdrop.waterdrop.util.Utils;
 
-public class ImageDetailActivity extends FragmentActivity implements OnClickListener {
+public class ImageDetailActivity extends Activity implements OnClickListener {
     private static final String IMAGE_CACHE_DIR = "images";
     public static final String EXTRA_IMAGE = "extra_image";
     private static ImageCache mImageCache;
-    private ImagePagerAdapter mAdapter;
+//    private ImagePagerAdapter mAdapter;
 
 
     private ViewPager mPager;
@@ -55,26 +50,26 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
         // cache.
         final int longest = (height > width ? height : width) / 2;
 
-        ImageCache.ImageCacheParams cacheParams =
-                new ImageCache.ImageCacheParams(this, IMAGE_CACHE_DIR);
-        cacheParams.setMemCacheSizePercent(0.3f); // Set memory cache to 25% of app memory
-        mImageCache = ImageCache.getInstance(this.getSupportFragmentManager(),cacheParams);
-        new Thread(){
-            public void run()
-            {
-                mImageCache.initDiskCache();
+//        ImageCache.ImageCacheParams cacheParams =
+//                new ImageCache.ImageCacheParams(this, IMAGE_CACHE_DIR);
+//        cacheParams.setMemCacheSizePercent(0.3f); // Set memory cache to 25% of app memory
+//        mImageCache = ImageCache.getInstance(getFragmentManager(),cacheParams);
+//        new Thread(){
+//            public void run()
+//            {
+//                mImageCache.initDiskCache();
+//
+//            }}.start();
+//        this.imageWorker = new ImageWorker(this,null,mImageCache);
+//
 
-            }}.start();
-        this.imageWorker = new ImageWorker(this,null,mImageCache);
 
-
-
-        // Set up ViewPager and backing adapter
-        mAdapter = new ImagePagerAdapter(getSupportFragmentManager(), UploadPicFragment.pictureList.size());
-        mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setAdapter(mAdapter);
-        mPager.setPageMargin((int) getResources().getDimension(R.dimen.horizontal_page_margin));
-        mPager.setOffscreenPageLimit(2);
+//        // Set up ViewPager and backing adapter
+//        mAdapter = new ImagePagerAdapter(getFragmentManager(), UploadPicFragment.pictureList.size());
+//        mPager = (ViewPager) findViewById(R.id.pager);
+//        mPager.setAdapter(mAdapter);
+//        mPager.setPageMargin((int) getResources().getDimension(R.dimen.horizontal_page_margin));
+//        mPager.setOffscreenPageLimit(2);
 
         // Set up activity to go full screen
         getWindow().addFlags(LayoutParams.FLAG_FULLSCREEN);
@@ -144,29 +139,29 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
         return imageWorker;
     }
 
-    /**
-     * The main adapter that backs the ViewPager. A subclass of FragmentStatePagerAdapter as there
-     * could be a large number of items in the ViewPager and we don't want to retain them all in
-     * memory at once but create/destroy them on the fly.
-     */
-    private class ImagePagerAdapter extends FragmentStatePagerAdapter {
-        private final int mSize;
-
-        public ImagePagerAdapter(FragmentManager fm, int size) {
-            super(fm);
-            mSize = size;
-        }
-
-        @Override
-        public int getCount() {
-            return mSize;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return ImageDetailFragment.newInstance(position);
-        }
-    }
+//    /**
+//     * The main adapter that backs the ViewPager. A subclass of FragmentStatePagerAdapter as there
+//     * could be a large number of items in the ViewPager and we don't want to retain them all in
+//     * memory at once but create/destroy them on the fly.
+//     */
+//    private class ImagePagerAdapter extends FragmentPagerAdapter {
+//        private final int mSize;
+//
+//        public ImagePagerAdapter(FragmentManager fm, int size) {
+//            super(fm);
+//            mSize = size;
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            return mSize;
+//        }
+//
+//        @Override
+//        public Fragment getItem(int position) {
+//            return ImageDetailFragment.newInstance(position);
+//        }
+//    }
 
     /**
      * Set on the ImageView in the ViewPager children fragments, to enable/disable low profile mode

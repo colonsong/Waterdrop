@@ -1,6 +1,9 @@
 package tw.waterdrop.waterdrop.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -143,6 +146,14 @@ public class MainActivity extends ActionBarActivity
                 }
                 break;
             case 3:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                0);
+                    }
+                }
                 tag = UploadPicFragment.class.getSimpleName();
                 fragment = getSupportFragmentManager().findFragmentByTag(tag);
                 if (fragment == null) {
@@ -179,6 +190,8 @@ public class MainActivity extends ActionBarActivity
                 .commit();
                 */
     }
+
+
 
     public void onSectionAttached(int number) {
         switch (number) {
